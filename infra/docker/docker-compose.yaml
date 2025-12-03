@@ -1,0 +1,15 @@
+# None of this should work, just scaffolding.
+services:
+  backend:
+    build: ../backend/
+    ports:
+      - "8000:5000"
+    volumes:
+      - ../backend/:/code
+    depends_on:
+      - redis
+  redis:
+    image: "redis:alpine"
+
+volumes:
+  data:
