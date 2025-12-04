@@ -1,4 +1,4 @@
-from util import sanitize_string
+from backend.services.util import sanitize_string
 import requests
 
 class OpenBookAPI():

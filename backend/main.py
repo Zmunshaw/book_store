@@ -1,38 +1,27 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from service import OpenBookAPI
+from fastapi.middleware.cors import CORSMiddleware
+from backend.routes import books
+from backend.services.db import close_db, db_connect
 
-app = FastAPI()
-api = OpenBookAPI()
+app = FastAPI(title="BookStore API")
 
-@app.get("/books/{book_name}")
-def search_book(book_name: str, page: int = 1):
-    """
-    Returns a list of books that match the search query.
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup
+    await db_connect()
+    yield
+    # shutdown
+    await close_db()
 
-    Response Format:
-    {
-        "count": <int>,               # total results found
-        "results": [
-            {
-                "bID": <string>,      # OpenLibrary Work ID, e.g. "OL27513W"
-                "title": <string>,
-                "sypnosis": <string>, # always empty for now
-                "date": <int|null>,   # publish year
-                "authorF": <string>,  # first name / first token
-                "authorL": <string>,  # last name / last token
-                "genre": <string>,    # may be empty
-                "image": <string>     # URL to large cover image, or "" if unavailable
-            },
-            etc etc
-        ]
-    }
+# cors config
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Flutter app's URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    Query Parameters:
-        page (int) — Pagination index (1-based).
-
-    Notes:
-        - If no books are found, "results" will be an empty list.
-        - If OpenLibrary rate limits or returns invalid data,
-          this endpoint will return an empty list and count=0.
-    """
-    return api.search(book_name, page)
+app.include_router(books.router, prefix="/books", tags=["Books"])
+app.include_router(books.router, prefix="/user", tags=["User"])
