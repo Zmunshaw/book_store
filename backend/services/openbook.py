@@ -38,15 +38,15 @@ class OpenBookAPI():
                 image = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg" if cover_id else ""
 
                 book_obj = {
-                    "bID": bID,
-                    "title": title,
+                    "bID": bID if bID else "unknown", 
+                    "title": title if title else "Unknown Title",
                     "sypnosis": "", 
-                    "date": date,
-                    "authorF": authorF,
-                    "authorL": authorL,
-                    "genre": genre,
-                    "image": image,
-                }
+                    "date": date, 
+                    "authorF": authorF if authorF else "",
+                    "authorL": authorL if authorL else "",
+                    "genre": genre if genre else "",
+                    "image": image if image else "",
+                    }
 
                 results.append(book_obj)
 

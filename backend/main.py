@@ -1,18 +1,17 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routes import books
+from backend.routes import books, user, collections 
 from backend.services.db import close_db, db_connect
 
-app = FastAPI(title="BookStore API")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # startup
     await db_connect()
     yield
-    # shutdown
     await close_db()
+
+app = FastAPI(title="BookStore API", lifespan=lifespan)
 
 # cors config
 app.add_middleware(
@@ -24,4 +23,5 @@ app.add_middleware(
 )
 
 app.include_router(books.router, prefix="/books", tags=["Books"])
-app.include_router(books.router, prefix="/user", tags=["User"])
+app.include_router(user.router, prefix="/user", tags=["User"])
+app.include_router(collections.router, prefix="/collections", tags=["Collections"])
