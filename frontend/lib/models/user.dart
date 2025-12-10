@@ -1,40 +1,35 @@
 class User {
   final String id;
-  final String email;
   final String username;
-  final String? displayName;
-  final DateTime createdAt;
-  final List<String> favoriteBookIds;
+  final String? firstName;
+  final String? lastName;
+  final DateTime dateOfBirth;
 
   User({
     required this.id,
-    required this.email,
     required this.username,
-    this.displayName,
-    required this.createdAt,
-    this.favoriteBookIds = const [],
+    this.firstName,
+    this.lastName,
+    required this.dateOfBirth
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      username: json['username'] as String,
-      displayName: json['displayName'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      favoriteBookIds:
-          (json['favoriteBookIds'] as List<dynamic>?)?.cast<String>() ?? [],
+      id: json['iud'] as String,
+      username: json['uname'] as String,
+      firstName: json['fname'] as String?,
+      lastName: json['lname'] as String?,
+      dateOfBirth: DateTime.parse(json['dob'] as String)
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'email': email,
-      'username': username,
-      'displayName': displayName,
-      'createdAt': createdAt.toIso8601String(),
-      'favoriteBookIds': favoriteBookIds,
+      'uid': id,
+      'uname': username,
+      'fname': firstName,
+      'lname': lastName,
+      'dob': dateOfBirth,
     };
   }
 }
