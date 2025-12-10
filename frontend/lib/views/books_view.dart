@@ -17,42 +17,42 @@ class _BooksViewState extends State<BooksView> {
     Book(
       id: '1',
       title: 'The Great Gatsby',
-      author: 'F. Scott Fitzgerald',
-      isbn: '978-0-7432-7356-5',
-      price: 15.99,
-      description: 'A classic American novel set in the Jazz Age',
+      authorFirst: 'F. Scott',
+      authorLast: 'Fitzgerald',
+      synopsis: 'A classic American novel set in the Jazz Age',
+      publishedDate: DateTime(1925, 4, 10),
+      coverImageUrl: '',
       genres: ['Fiction', 'Classic'],
-      stockQuantity: 25,
     ),
     Book(
       id: '2',
       title: '1984',
-      author: 'George Orwell',
-      isbn: '978-0-452-28423-4',
-      price: 14.99,
-      description: 'A dystopian social science fiction novel',
+      authorFirst: 'George',
+      authorLast: 'Orwell',
+      synopsis: 'A dystopian social science fiction novel',
+      publishedDate: DateTime(1949, 6, 8),
+      coverImageUrl: '',
       genres: ['Fiction', 'Dystopian'],
-      stockQuantity: 30,
     ),
     Book(
       id: '3',
       title: 'To Kill a Mockingbird',
-      author: 'Harper Lee',
-      isbn: '978-0-06-112008-4',
-      price: 13.99,
-      description: 'A gripping tale of racial injustice and childhood innocence',
+      authorFirst: 'Harper',
+      authorLast: 'Lee',
+      synopsis: 'A gripping tale of racial injustice and childhood innocence',
+      publishedDate: DateTime(1960, 7, 11),
+      coverImageUrl: '',
       genres: ['Fiction', 'Classic'],
-      stockQuantity: 20,
     ),
     Book(
       id: '4',
       title: 'Dune',
-      author: 'Frank Herbert',
-      isbn: '978-0-441-17271-9',
-      price: 18.99,
-      description: 'Epic science fiction on the desert planet Arrakis',
+      authorFirst: 'Frank',
+      authorLast: 'Herbert',
+      synopsis: 'Epic science fiction on the desert planet Arrakis',
+      publishedDate: DateTime(1965, 8, 1),
+      coverImageUrl: '',
       genres: ['Science Fiction'],
-      stockQuantity: 15,
     ),
   ];
 
@@ -63,7 +63,8 @@ class _BooksViewState extends State<BooksView> {
       final query = _searchController.text.toLowerCase();
       books = books.where((book) =>
         book.title.toLowerCase().contains(query) ||
-        book.author.toLowerCase().contains(query)
+        book.authorFirst.toLowerCase().contains(query) ||
+        book.authorLast.toLowerCase().contains(query)
       ).toList();
     }
 
@@ -204,74 +205,34 @@ class _BooksViewState extends State<BooksView> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      book.author,
+                      '${book.authorFirst} ${book.authorLast}',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
                       ),
                     ),
                     const SizedBox(height: 8),
-                    if (book.description != null)
-                      Text(
-                        book.description!,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[700],
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                    Text(
+                      book.synopsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[700],
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Text(
-                          '\$${book.price.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: book.genres.map((genre) => Chip(
+                        label: Text(
+                          genre,
+                          style: const TextStyle(fontSize: 11),
                         ),
-                        const SizedBox(width: 16),
-                        if (book.stockQuantity > 0)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.green[100],
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              'In Stock',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.green[800],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          )
-                        else
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.red[100],
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              'Out of Stock',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.red[800],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                      ],
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      )).toList(),
                     ),
                   ],
                 ),
