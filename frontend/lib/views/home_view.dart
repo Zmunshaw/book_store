@@ -14,22 +14,22 @@ class _HomeViewState extends State<HomeView> {
     Book(
       id: '1',
       title: 'The Great Gatsby',
-      author: 'F. Scott Fitzgerald',
-      isbn: '978-0-7432-7356-5',
-      price: 15.99,
-      description: 'A classic American novel set in the Jazz Age',
+      authorFirst: 'F. Scott',
+      authorLast: 'Fitzgerald',
+      synopsis: 'A classic American novel set in the Jazz Age',
+      publishedDate: DateTime(1925, 4, 10),
+      coverImageUrl: '',
       genres: ['Fiction', 'Classic'],
-      stockQuantity: 25,
     ),
     Book(
       id: '2',
       title: '1984',
-      author: 'George Orwell',
-      isbn: '978-0-452-28423-4',
-      price: 14.99,
-      description: 'A dystopian social science fiction novel',
+      authorFirst: 'George',
+      authorLast: 'Orwell',
+      synopsis: 'A dystopian social science fiction novel',
+      publishedDate: DateTime(1949, 6, 8),
+      coverImageUrl: '',
       genres: ['Fiction', 'Dystopian'],
-      stockQuantity: 30,
     ),
   ];
 
@@ -135,7 +135,7 @@ class _HomeViewState extends State<HomeView> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    book.author,
+                    '${book.authorFirst} ${book.authorLast}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[600],
@@ -144,13 +144,15 @@ class _HomeViewState extends State<HomeView> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    '\$${book.price.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                  Wrap(
+                    spacing: 4,
+                    children: book.genres.take(2).map((genre) => Text(
+                      genre,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    )).toList(),
                   ),
                 ],
               ),

@@ -1,0 +1,137 @@
+version: '3.8'
+
+services:
+  # Backend API Service
+  backend:
+    build:
+      context: ..
+      dockerfile: infra/docker/backend/Dockerfile
+      target: production
+    container_name: bookstore-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URI=${MONGODB_URI:-mongodb+srv://admin1:TeOjuosfnsgoy5dO@cluster0.ngbekxz.mongodb.net/?appName=Cluster0}
+      - SECRET_KEY=${SECRET_KEY:-ldksfjlskdfjsldkfjsdlkfjsdlklsdfjsk}
+      - ENVIRONMENT=production
+      - RUN_TESTS=${RUN_TESTS:-true}  # Set to 'false' to skip tests on startup
+    networks:
+      - bookstore-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.bookstore.service=backend"
+      - "com.bookstore.environment=production"
+
+  # Backend Development Service (with hot reload)
+  backend-dev:
+    build:
+      context: ..
+      dockerfile: infra/docker/backend/Dockerfile
+      target: development
+    container_name: bookstore-backend-dev
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    volumes:
+      - ../backend:/app:rw
+    environment:
+      - MONGODB_URI=${MONGODB_URI:-mongodb+srv://admin1:TeOjuosfnsgoy5dO@cluster0.ngbekxz.mongodb.net/?appName=Cluster0}
+      - SECRET_KEY=${SECRET_KEY:-ldksfjlskdfjsldkfjsdlkfjsdlklsdfjsk}
+      - ENVIRONMENT=development
+      - RUN_TESTS=${RUN_TESTS:-true}  # Set to 'false' to skip tests on startup
+    networks:
+      - bookstore-network
+    labels:
+      - "com.bookstore.service=backend-dev"
+      - "com.bookstore.environment=development"
+    profiles:
+      - dev
+
+  # MongoDB Local (Optional - for local development without Atlas)
+  mongodb:
+    image: mongo:7.0
+    container_name: bookstore-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASS:-password123}
+      - MONGO_INITDB_DATABASE=bookstore
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-config:/data/configdb
+      - ./docker/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - bookstore-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/bookstore --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    labels:
+      - "com.bookstore.service=database"
+    profiles:
+      - local-db
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: bookstore-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+    networks:
+      - bookstore-network
+    labels:
+      - "com.bookstore.service=proxy"
+    profiles:
+      - proxy
+
+  # Redis Cache (Optional - for future caching)
+  redis:
+    image: redis:7-alpine
+    container_name: bookstore-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - bookstore-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "com.bookstore.service=cache"
+    profiles:
+      - cache
+
+networks:
+  bookstore-network:
+    driver: bridge
+    name: bookstore-network
+
+volumes:
+  mongodb-data:
+    name: bookstore-mongodb-data
+  mongodb-config:
+    name: bookstore-mongodb-config
+  redis-data:
+    name: bookstore-redis-data
