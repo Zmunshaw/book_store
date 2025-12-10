@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/user_service.dart' as user_serve;
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -9,7 +10,8 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  // final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
@@ -42,9 +44,9 @@ class _LoginViewState extends State<LoginView> {
                 const SizedBox(height: 8),
                 Text(
                   'Sign in to your account',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
@@ -54,20 +56,23 @@ class _LoginViewState extends State<LoginView> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
+                        controller: _usernameController,
+                        // keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         decoration: const InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: Icon(Icons.email_outlined),
+                          // labelText: 'Email',
+                          labelText: 'Username',
+                          // prefixIcon: Icon(Icons.email_outlined),
+                          prefixIcon: Icon(Icons.person),
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
+                            return 'Please enter your Username';
                           }
-                          if (!value.contains('@')) {
-                            return 'Please enter a valid email';
-                          }
+                          // if (!value.contains('@')) {
+                          //   return 'Please enter a valid email';
+                          // }
                           return null;
                         },
                       ),
@@ -170,35 +175,37 @@ class _LoginViewState extends State<LoginView> {
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-
+      final userservice = user_serve.UserService();
+      String username = _usernameController.value.text;
+      String password = _passwordController.value.text;
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
-
+      final String access = await userservice.getToken(username, password);
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login successful!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$access!')));
       }
     }
   }
 
   Future<void> _handleRegister() async {
     // Navigate to registration screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Registration coming soon!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Registration coming soon!')));
   }
 
   Future<void> _handleGuestLogin() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Continuing as guest...')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Continuing as guest...')));
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
