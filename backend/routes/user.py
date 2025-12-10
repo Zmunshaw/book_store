@@ -2,15 +2,14 @@ from fastapi import APIRouter, HTTPException, status
 from backend.auth import create_access_token, verify_password
 from backend.models import Token, UserCreate, UserLogin, UserResponse
 from passlib.context import CryptContext
-
-from backend.services import db
+from backend.services import db  
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@router.post("/create")
+@router.post("/create", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate):
-    users_collection = db.users
+    users_collection = db.database.users  
 
     existing_user = await users_collection.find_one({"uName": user.uName})
     if existing_user:
@@ -24,7 +23,7 @@ async def create_user(user: UserCreate):
     user_doc = {
         "fName": user.fName,
         "lName": user.lName,
-        "dob": user.dob.isoformat(),  # Convert date to string for MongoDB
+        "dob": user.dob.isoformat(),
         "uName": user.uName,
         "uPass": hashed_password
     }
@@ -41,7 +40,7 @@ async def create_user(user: UserCreate):
 
 @router.post("/login", response_model=Token)
 async def login(credentials: UserLogin):
-    users_collection = db.users
+    users_collection = db.database.users  
     
     user = await users_collection.find_one({"uName": credentials.uName})
     if not user:

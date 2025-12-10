@@ -4,7 +4,7 @@ from backend.services.openbook import OpenBookAPI
 router = APIRouter()
 api = OpenBookAPI()
 
-@router.get("/{book.name}")
+@router.get("/{book_name}")
 def search_book(book_name: str, page: int = 1):
     """
     Returns a list of books that match the search query. No auth required.
