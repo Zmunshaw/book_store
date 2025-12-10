@@ -14,26 +14,23 @@ class _CollectionsViewState extends State<CollectionsView> {
     Collection(
       id: '1',
       name: 'Classic Literature',
-      description: 'Timeless classics from renowned authors',
-      bookIds: ['1', '2', '3'],
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
-      updatedAt: DateTime.now(),
+      imageURL: '',
+      userID: 'user1',
+      books: [],
     ),
     Collection(
       id: '2',
       name: 'Science Fiction',
-      description: 'Explore the future and beyond',
-      bookIds: ['4', '5'],
-      createdAt: DateTime.now().subtract(const Duration(days: 15)),
-      updatedAt: DateTime.now(),
+      imageURL: '',
+      userID: 'user1',
+      books: [],
     ),
     Collection(
       id: '3',
       name: 'Mystery & Thriller',
-      description: 'Page-turners that keep you guessing',
-      bookIds: ['6', '7', '8', '9'],
-      createdAt: DateTime.now().subtract(const Duration(days: 7)),
-      updatedAt: DateTime.now(),
+      imageURL: '',
+      userID: 'user1',
+      books: [],
     ),
   ];
 
@@ -125,7 +122,7 @@ class _CollectionsViewState extends State<CollectionsView> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${collection.bookIds.length} books',
+                          '${collection.books.length} books',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -142,16 +139,6 @@ class _CollectionsViewState extends State<CollectionsView> {
                   ),
                 ],
               ),
-              if (collection.description != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  collection.description!,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ],
             ],
           ),
         ),
