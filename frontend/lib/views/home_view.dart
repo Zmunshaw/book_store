@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import '../models/book.dart';
+import '../services/book_api_service.dart';
+import 'book_detail_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -9,29 +12,50 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  // Mock data - replace with API calls later
-  final List<Book> _featuredBooks = [
-    Book(
-      id: '1',
-      title: 'The Great Gatsby',
-      authorFirst: 'F. Scott',
-      authorLast: 'Fitzgerald',
-      synopsis: 'A classic American novel set in the Jazz Age',
-      publishedDate: DateTime(1925, 4, 10),
-      coverImageUrl: '',
-      genres: ['Fiction', 'Classic'],
+  final BookApiService _apiService = BookApiService();
+  final Logger _logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 0,
+      errorMethodCount: 3,
+      lineLength: 80,
+      colors: true,
+      printEmojis: false,
     ),
-    Book(
-      id: '2',
-      title: '1984',
-      authorFirst: 'George',
-      authorLast: 'Orwell',
-      synopsis: 'A dystopian social science fiction novel',
-      publishedDate: DateTime(1949, 6, 8),
-      coverImageUrl: '',
-      genres: ['Fiction', 'Dystopian'],
-    ),
-  ];
+  );
+
+  List<Book> _featuredBooks = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _logger.i('HomeView initialized');
+    _loadBooks();
+  }
+
+  Future<void> _loadBooks() async {
+    _logger.i('Loading books...');
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final books = await _apiService.searchBooks('bestseller', page: 1);
+      _logger.i('Books loaded successfully: ${books.length} books');
+      setState(() {
+        _featuredBooks = books;
+        _isLoading = false;
+      });
+    } catch (e) {
+      _logger.e('Failed to load books', error: e);
+      setState(() {
+        _errorMessage = 'Failed to load books. Please check your connection.';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,32 +89,79 @@ class _HomeViewState extends State<HomeView> {
             padding: const EdgeInsets.all(16.0),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                const Text(
-                  'Featured Books',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Featured Books',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    if (!_isLoading)
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: _loadBooks,
+                        tooltip: 'Refresh',
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 16),
               ]),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.7,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+          if (_isLoading)
+            const SliverFillRemaining(
+              child: Center(
+                child: CircularProgressIndicator(),
               ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final book = _featuredBooks[index];
-                  return _buildBookCard(book);
-                },
-                childCount: _featuredBooks.length,
+            )
+          else if (_errorMessage != null)
+            SliverFillRemaining(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 60, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      _errorMessage!,
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _loadBooks,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else if (_featuredBooks.isEmpty)
+            const SliverFillRemaining(
+              child: Center(
+                child: Text('No books found'),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  childAspectRatio: 0.6,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final book = _featuredBooks[index];
+                    return _buildBookCard(book);
+                  },
+                  childCount: _featuredBooks.length,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -101,7 +172,13 @@ class _HomeViewState extends State<HomeView> {
       elevation: 4,
       child: InkWell(
         onTap: () {
-          // Navigate to book details
+          _logger.i('Opening book details: ${book.title}');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookDetailView(book: book),
+            ),
+          );
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,13 +191,42 @@ class _HomeViewState extends State<HomeView> {
                     top: Radius.circular(4),
                   ),
                 ),
-                child: Center(
-                  child: Icon(Icons.menu_book, size: 60, color: Colors.grey[400]),
-                ),
+                child: book.coverImageUrl.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(4),
+                        ),
+                        child: Image.network(
+                          book.coverImageUrl,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Icon(Icons.menu_book,
+                                  size: 60, color: Colors.grey[400]),
+                            );
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Center(
+                        child: Icon(Icons.menu_book,
+                            size: 60, color: Colors.grey[400]),
+                      ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(6.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -128,31 +234,20 @@ class _HomeViewState extends State<HomeView> {
                     book.title,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                      fontSize: 11,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     '${book.authorFirst} ${book.authorLast}',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 9,
                       color: Colors.grey[600],
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 4,
-                    children: book.genres.take(2).map((genre) => Text(
-                      genre,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    )).toList(),
                   ),
                 ],
               ),
