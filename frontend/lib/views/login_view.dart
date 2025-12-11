@@ -111,16 +111,6 @@ class _LoginViewState extends State<LoginView> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {
-                            // Handle forgot password
-                          },
-                          child: const Text('Forgot Password?'),
-                        ),
-                      ),
                       const SizedBox(height: 24),
                       FilledButton(
                         onPressed: _isLoading ? null : _handleLogin,
