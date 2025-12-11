@@ -3,7 +3,9 @@ import '../views/home_view.dart';
 import '../views/books_view.dart';
 import '../views/collections_view.dart';
 import '../views/login_view.dart';
+import '../views/profile_view.dart';
 import '../views/settings_view.dart';
+import '../services/auth_service.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -17,38 +19,40 @@ class _MainNavigationState extends State<MainNavigation>
   late TabController _tabController;
   int _currentIndex = 0;
 
-  final List<NavigationTab> _tabs = [
-    NavigationTab(
-      label: 'Home',
-      icon: Icons.home_outlined,
-      selectedIcon: Icons.home,
-      view: const HomeView(),
-    ),
-    NavigationTab(
-      label: 'Books',
-      icon: Icons.menu_book_outlined,
-      selectedIcon: Icons.menu_book,
-      view: const BooksView(),
-    ),
-    NavigationTab(
-      label: 'Collections',
-      icon: Icons.collections_bookmark_outlined,
-      selectedIcon: Icons.collections_bookmark,
-      view: const CollectionsView(),
-    ),
-    NavigationTab(
-      label: 'Account',
-      icon: Icons.person_outline,
-      selectedIcon: Icons.person,
-      view: const LoginView(),
-    ),
-    NavigationTab(
-      label: 'Settings',
-      icon: Icons.settings_outlined,
-      selectedIcon: Icons.settings,
-      view: const SettingsView(),
-    ),
-  ];
+  List<NavigationTab> get _tabs => [
+        NavigationTab(
+          label: 'Home',
+          icon: Icons.home_outlined,
+          selectedIcon: Icons.home,
+          view: const HomeView(),
+        ),
+        NavigationTab(
+          label: 'Books',
+          icon: Icons.menu_book_outlined,
+          selectedIcon: Icons.menu_book,
+          view: const BooksView(),
+        ),
+        NavigationTab(
+          label: 'Collections',
+          icon: Icons.collections_bookmark_outlined,
+          selectedIcon: Icons.collections_bookmark,
+          view: const CollectionsView(),
+        ),
+        NavigationTab(
+          label: 'Account',
+          icon: Icons.person_outline,
+          selectedIcon: Icons.person,
+          view: AuthService.isLoggedIn()
+              ? ProfileView(onTabChange: _changeTab)
+              : LoginView(onLoginSuccess: () => _changeTab(3)),
+        ),
+        NavigationTab(
+          label: 'Settings',
+          icon: Icons.settings_outlined,
+          selectedIcon: Icons.settings,
+          view: const SettingsView(),
+        ),
+      ];
 
   @override
   void initState() {
@@ -66,7 +70,17 @@ class _MainNavigationState extends State<MainNavigation>
       setState(() {
         _currentIndex = _tabController.index;
       });
+    } else {
+      // Rebuild on tab selection to reflect auth state changes
+      setState(() {});
     }
+  }
+
+  void _changeTab(int index) {
+    _tabController.animateTo(index);
+    setState(() {
+      _currentIndex = index;
+    });
   }
 
   @override
