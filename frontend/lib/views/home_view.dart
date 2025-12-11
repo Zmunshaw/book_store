@@ -134,20 +134,31 @@ class _HomeViewState extends State<HomeView> {
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text('Book Store'),
+              title: const Text(
+                'BOOK STORE',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.secondary,
+                      const Color(0xFF010409),
+                      const Color(0xFF0D1117),
+                      const Color(0xFF00FF41).withValues(alpha: 0.1),
                     ],
                   ),
                 ),
-                child: const Center(
-                  child: Icon(Icons.book, size: 80, color: Colors.white70),
+                child: Center(
+                  child: Icon(
+                    Icons.terminal,
+                    size: 80,
+                    color: const Color(0xFF00FF41).withValues(alpha: 0.3),
+                  ),
                 ),
               ),
             ),
@@ -158,23 +169,29 @@ class _HomeViewState extends State<HomeView> {
               delegate: SliverChildListDelegate([
                 TextField(
                   controller: _searchController,
+                  style: const TextStyle(color: Color(0xFF00FF41)),
                   decoration: InputDecoration(
-                    hintText: 'Search for books...',
-                    prefixIcon: const Icon(Icons.search),
+                    hintText: '> search_query...',
+                    hintStyle: TextStyle(
+                      color: const Color(0xFF00FF41).withValues(alpha: 0.4),
+                      fontFamily: 'monospace',
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Color(0xFF00FF41),
+                    ),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear),
+                            icon: const Icon(
+                              Icons.close,
+                              color: Color(0xFFFF0055),
+                            ),
                             onPressed: () {
                               _searchController.clear();
                               _loadBooks(query: 'bestseller');
                             },
                           )
                         : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[100],
                   ),
                   onSubmitted: _onSearchSubmitted,
                   textInputAction: TextInputAction.search,
@@ -184,12 +201,20 @@ class _HomeViewState extends State<HomeView> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      _searchQuery == 'bestseller' ? 'Featured Books' : 'Search Results',
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      _searchQuery == 'bestseller' ? '> FEATURED_BOOKS' : '> SEARCH_RESULTS',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF00FF41),
+                        letterSpacing: 1.5,
+                      ),
                     ),
                     if (!_isLoading)
                       IconButton(
-                        icon: const Icon(Icons.refresh),
+                        icon: const Icon(
+                          Icons.refresh,
+                          color: Color(0xFF00D9FF),
+                        ),
                         onPressed: _loadBooks,
                         tooltip: 'Refresh',
                       ),
@@ -202,7 +227,9 @@ class _HomeViewState extends State<HomeView> {
           if (_isLoading)
             const SliverFillRemaining(
               child: Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  color: Color(0xFF00FF41),
+                ),
               ),
             )
           else if (_errorMessage != null)
@@ -211,18 +238,29 @@ class _HomeViewState extends State<HomeView> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 60, color: Colors.grey[400]),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 60,
+                      color: Color(0xFFFF0055),
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       _errorMessage!,
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF00FF41),
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: _loadBooks,
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
+                      label: const Text('RETRY'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0D1117),
+                        foregroundColor: const Color(0xFF00FF41),
+                      ),
                     ),
                   ],
                 ),
@@ -231,7 +269,14 @@ class _HomeViewState extends State<HomeView> {
           else if (_featuredBooks.isEmpty)
             const SliverFillRemaining(
               child: Center(
-                child: Text('No books found'),
+                child: Text(
+                  '> NO_BOOKS_FOUND',
+                  style: TextStyle(
+                    color: Color(0xFF00FF41),
+                    fontSize: 18,
+                    letterSpacing: 1.5,
+                  ),
+                ),
               ),
             )
           else
@@ -254,22 +299,27 @@ class _HomeViewState extends State<HomeView> {
               ),
             ),
           if (_isLoadingMore)
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF00D9FF),
+                  ),
                 ),
               ),
             ),
           if (!_isLoading && !_hasMore && _featuredBooks.isNotEmpty)
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: Center(
                   child: Text(
-                    'No more books to load',
-                    style: TextStyle(color: Colors.grey[600]),
+                    '> END_OF_DATA',
+                    style: TextStyle(
+                      color: Color(0xFF00FF41),
+                      letterSpacing: 1.5,
+                    ),
                   ),
                 ),
               ),

@@ -35,8 +35,17 @@ class _BookDetailViewState extends State<BookDetailView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.book.title),
+        title: Text(
+          widget.book.title.toUpperCase(),
+          style: const TextStyle(
+            letterSpacing: 1.5,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: const Color(0xFF010409),
+        foregroundColor: const Color(0xFF00FF41),
       ),
+      backgroundColor: const Color(0xFF010409),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,9 +63,18 @@ class _BookDetailViewState extends State<BookDetailView> {
                       return Container(
                         height: 300,
                         width: 200,
-                        color: Colors.grey[200],
-                        child: Icon(Icons.menu_book,
-                            size: 100, color: Colors.grey[400]),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0D1117),
+                          border: Border.all(
+                            color: const Color(0xFF00FF41).withValues(alpha: 0.3),
+                            width: 2,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.terminal,
+                          size: 100,
+                          color: Color(0xFF00FF41),
+                        ),
                       );
                     },
                     loadingBuilder: (context, child, loadingProgress) {
@@ -67,8 +85,12 @@ class _BookDetailViewState extends State<BookDetailView> {
                       return Container(
                         height: 300,
                         width: 200,
-                        color: Colors.grey[200],
-                        child: const Center(child: CircularProgressIndicator()),
+                        color: const Color(0xFF0D1117),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF00FF41),
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -79,9 +101,18 @@ class _BookDetailViewState extends State<BookDetailView> {
                 child: Container(
                   height: 300,
                   width: 200,
-                  color: Colors.grey[200],
-                  child: Icon(Icons.menu_book,
-                      size: 100, color: Colors.grey[400]),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0D1117),
+                    border: Border.all(
+                      color: const Color(0xFF00FF41).withValues(alpha: 0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.terminal,
+                    size: 100,
+                    color: Color(0xFF00FF41),
+                  ),
                 ),
               ),
             Padding(
@@ -90,39 +121,52 @@ class _BookDetailViewState extends State<BookDetailView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.book.title,
+                    widget.book.title.toUpperCase(),
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
+                      color: Color(0xFF00FF41),
+                      letterSpacing: 1.2,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'by ${widget.book.authorFirst} ${widget.book.authorLast}',
-                    style: TextStyle(
+                    '> by ${widget.book.authorFirst} ${widget.book.authorLast}'.toUpperCase(),
+                    style: const TextStyle(
                       fontSize: 18,
-                      color: Colors.grey[700],
+                      color: Color(0xFF00D9FF),
+                      letterSpacing: 1.0,
                     ),
                   ),
                   const SizedBox(height: 16),
                   if (widget.book.publishedDate.year > 1)
                     Row(
                       children: [
-                        const Icon(Icons.calendar_today, size: 16),
+                        const Icon(
+                          Icons.calendar_today,
+                          size: 16,
+                          color: Color(0xFF00FF41),
+                        ),
                         const SizedBox(width: 8),
                         Text(
-                          'Published: ${widget.book.publishedDate.year}',
-                          style: const TextStyle(fontSize: 16),
+                          '> PUBLISHED: ${widget.book.publishedDate.year}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF00FF41),
+                            letterSpacing: 1.0,
+                          ),
                         ),
                       ],
                     ),
                   const SizedBox(height: 16),
                   if (widget.book.genres.isNotEmpty) ...[
                     const Text(
-                      'Genres',
+                      '> GENRES',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: Color(0xFF00FF41),
+                        letterSpacing: 1.5,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -130,10 +174,27 @@ class _BookDetailViewState extends State<BookDetailView> {
                       spacing: 8,
                       runSpacing: 8,
                       children: widget.book.genres.map((genre) {
-                        return Chip(
-                          label: Text(genre),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primaryContainer,
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0D1117),
+                            border: Border.all(
+                              color: const Color(0xFF00D9FF).withValues(alpha: 0.5),
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            genre.toUpperCase(),
+                            style: const TextStyle(
+                              color: Color(0xFF00D9FF),
+                              fontSize: 12,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
                         );
                       }).toList(),
                     ),
@@ -141,16 +202,22 @@ class _BookDetailViewState extends State<BookDetailView> {
                   ],
                   if (widget.book.synopsis.isNotEmpty) ...[
                     const Text(
-                      'Synopsis',
+                      '> SYNOPSIS',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: Color(0xFF00FF41),
+                        letterSpacing: 1.5,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       widget.book.synopsis,
-                      style: const TextStyle(fontSize: 16, height: 1.5),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: Color(0xFF00FF41),
+                      ),
                     ),
                   ],
                 ],
