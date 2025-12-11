@@ -55,7 +55,7 @@ class TestCollectionsRoutes:
             json=collection_data
         )
 
-        assert response.status_code == 403  # Forbidden or 401 Unauthorized
+        assert response.status_code == 401  # Forbidden or 401 Unauthorized
 
     async def test_create_collection_invalid_data(self, async_client, auth_headers):
         """Test creating collection with invalid data"""
@@ -116,7 +116,7 @@ class TestCollectionsRoutes:
         """Test getting collections without authentication"""
         response = await async_client.get("/collections/")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     async def test_add_book_to_collection_success(self, async_client, auth_headers, test_db, test_user):
         """Test adding a book to collection"""
