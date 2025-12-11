@@ -147,8 +147,8 @@ class _HomeViewState extends State<HomeView> {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 150,
                   childAspectRatio: 0.6,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
