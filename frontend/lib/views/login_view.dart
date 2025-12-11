@@ -1,9 +1,7 @@
 import 'package:book_store/app_data/app_globals.dart';
+import 'package:flutter/material.dart';
 import 'package:book_store/services/auth_service.dart';
 import 'package:book_store/views/register_view.dart';
-import 'package:flutter/material.dart';
-import 'package:book_store/services/user_service.dart' as user_serve;
-//import '../services/user_service.dart' as user_serve;
 
 class LoginView extends StatefulWidget {
   final VoidCallback? onLoginSuccess;
@@ -181,28 +179,45 @@ class _LoginViewState extends State<LoginView> {
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      final userservice = user_serve.UserService();
-      String username = _usernameController.value.text;
-      String password = _passwordController.value.text;
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-      final String access = await userservice.getToken(username, password);
-      print('Await succeeded?');
-      print('$access');
+
+      final String username = _usernameController.text;
+      final String password = _passwordController.text;
+
+      final result = await AuthService.login(
+        username: username,
+        password: password,
+      );
+
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('$access!')));
+
+        if (result['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result['message'] ?? 'Login successful!')),
+          );
+
+          if (widget.onLoginSuccess != null) {
+            widget.onLoginSuccess!();
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['error'] ?? 'Login failed'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
 
   Future<void> _handleRegister() async {
-    // Navigate to registration screen
-    ScaffoldMessenger.of(
+    Navigator.push(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Registration coming soon!')));
+      MaterialPageRoute(
+        builder: (context) => const RegisterView(),
+      ),
+    );
   }
 
   Future<void> _handleGuestLogin() async {

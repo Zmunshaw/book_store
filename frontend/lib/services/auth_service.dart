@@ -77,7 +77,6 @@ class AuthService {
 
         _logger.i('User created successfully: ${user.uName}');
 
-        // Automatically log in after successful registration
         final loginResult = await login(
           username: username,
           password: password,
@@ -119,5 +118,85 @@ class AuthService {
 
   static bool isLoggedIn() {
     return _accessToken != null;
+  }
+
+  static Future<Map<String, dynamic>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      if (!isLoggedIn()) {
+        return {
+          'success': false,
+          'error': 'Not logged in',
+        };
+      }
+
+      final response = await ApiService.put(
+        endpoint: '/user/change-password',
+        body: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+        token: _accessToken,
+      );
+
+      if (response['success']) {
+        _logger.i('Password changed successfully');
+        return {
+          'success': true,
+          'message': 'Password changed successfully',
+        };
+      } else {
+        _logger.w('Password change failed: ${response['error']}');
+        return {
+          'success': false,
+          'error': response['error'],
+        };
+      }
+    } catch (e) {
+      _logger.e('Error changing password: $e');
+      return {
+        'success': false,
+        'error': 'An unexpected error occurred',
+      };
+    }
+  }
+
+  static Future<Map<String, dynamic>> deleteAccount() async {
+    try {
+      if (!isLoggedIn()) {
+        return {
+          'success': false,
+          'error': 'Not logged in',
+        };
+      }
+
+      final response = await ApiService.delete(
+        endpoint: '/user/delete-account',
+        token: _accessToken,
+      );
+
+      if (response['success']) {
+        _logger.i('Account deleted successfully');
+        logout(); // Clear the token after deletion
+        return {
+          'success': true,
+          'message': 'Account deleted successfully',
+        };
+      } else {
+        _logger.w('Account deletion failed: ${response['error']}');
+        return {
+          'success': false,
+          'error': response['error'],
+        };
+      }
+    } catch (e) {
+      _logger.e('Error deleting account: $e');
+      return {
+        'success': false,
+        'error': 'An unexpected error occurred',
+      };
+    }
   }
 }

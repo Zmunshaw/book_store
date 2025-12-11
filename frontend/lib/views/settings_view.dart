@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/settings_service.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -13,9 +14,35 @@ class _SettingsViewState extends State<SettingsView> {
   bool _darkModeEnabled = false;
   String _selectedLanguage = 'English';
   double _fontSize = 16.0;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    await SettingsService.init();
+    setState(() {
+      _notificationsEnabled = SettingsService.getNotificationsEnabled();
+      _darkModeEnabled = SettingsService.getDarkMode();
+      _selectedLanguage = SettingsService.getLanguage();
+      _fontSize = SettingsService.getFontSize();
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -65,16 +92,19 @@ class _SettingsViewState extends State<SettingsView> {
                 title: const Text('Dark Mode'),
                 subtitle: const Text('Use dark theme'),
                 value: _darkModeEnabled,
-                onChanged: (value) {
+                onChanged: (value) async {
                   setState(() {
                     _darkModeEnabled = value;
                   });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Theme preferences saved'),
-                      duration: Duration(seconds: 1),
-                    ),
-                  );
+                  await SettingsService.setDarkMode(value);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Theme preferences saved'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  }
                 },
               ),
               ListTile(
@@ -93,6 +123,9 @@ class _SettingsViewState extends State<SettingsView> {
                       setState(() {
                         _fontSize = value;
                       });
+                    },
+                    onChangeEnd: (value) async {
+                      await SettingsService.setFontSize(value);
                     },
                   ),
                 ),
@@ -117,18 +150,21 @@ class _SettingsViewState extends State<SettingsView> {
                 title: const Text('Push Notifications'),
                 subtitle: const Text('Receive notifications about new books'),
                 value: _notificationsEnabled,
-                onChanged: (value) {
+                onChanged: (value) async {
                   setState(() {
                     _notificationsEnabled = value;
                   });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(value
-                          ? 'Notifications enabled'
-                          : 'Notifications disabled'),
-                      duration: const Duration(seconds: 1),
-                    ),
-                  );
+                  await SettingsService.setNotificationsEnabled(value);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(value
+                            ? 'Notifications enabled'
+                            : 'Notifications disabled'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  }
                 },
               ),
             ],
@@ -228,17 +264,11 @@ class _SettingsViewState extends State<SettingsView> {
                 value: 'English',
                 groupValue: _selectedLanguage,
                 onChanged: (value) {
-                  setState(() {
-                    _selectedLanguage = value!;
-                  });
-                  Navigator.pop(context);
+                  _selectLanguage(value!);
                 },
               ),
               onTap: () {
-                setState(() {
-                  _selectedLanguage = 'English';
-                });
-                Navigator.pop(context);
+                _selectLanguage('English');
               },
             ),
             ListTile(
@@ -247,17 +277,11 @@ class _SettingsViewState extends State<SettingsView> {
                 value: 'Spanish',
                 groupValue: _selectedLanguage,
                 onChanged: (value) {
-                  setState(() {
-                    _selectedLanguage = value!;
-                  });
-                  Navigator.pop(context);
+                  _selectLanguage(value!);
                 },
               ),
               onTap: () {
-                setState(() {
-                  _selectedLanguage = 'Spanish';
-                });
-                Navigator.pop(context);
+                _selectLanguage('Spanish');
               },
             ),
             ListTile(
@@ -266,23 +290,27 @@ class _SettingsViewState extends State<SettingsView> {
                 value: 'French',
                 groupValue: _selectedLanguage,
                 onChanged: (value) {
-                  setState(() {
-                    _selectedLanguage = value!;
-                  });
-                  Navigator.pop(context);
+                  _selectLanguage(value!);
                 },
               ),
               onTap: () {
-                setState(() {
-                  _selectedLanguage = 'French';
-                });
-                Navigator.pop(context);
+                _selectLanguage('French');
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _selectLanguage(String language) async {
+    setState(() {
+      _selectedLanguage = language;
+    });
+    await SettingsService.setLanguage(language);
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   void _showChangePasswordDialog() {
@@ -313,6 +341,7 @@ class _SettingsViewState extends State<SettingsView> {
                 decoration: const InputDecoration(
                   labelText: 'New Password',
                   border: OutlineInputBorder(),
+                  hintText: 'Minimum 6 characters',
                 ),
               ),
               const SizedBox(height: 16),
@@ -333,14 +362,91 @@ class _SettingsViewState extends State<SettingsView> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              // TODO: Implement password change
+            onPressed: () async {
+              final currentPassword = currentPasswordController.text;
+              final newPassword = newPasswordController.text;
+              final confirmPassword = confirmPasswordController.text;
+
+              // Validate inputs
+              if (currentPassword.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter your current password'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              if (newPassword.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter a new password'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              if (newPassword.length < 6) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Password must be at least 6 characters'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              if (newPassword != confirmPassword) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Passwords do not match'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              // Show loading indicator
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Password change feature coming soon!'),
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CircularProgressIndicator(),
                 ),
               );
+
+              // Call API to change password
+              final result = await AuthService.changePassword(
+                currentPassword: currentPassword,
+                newPassword: newPassword,
+              );
+
+              // Hide loading indicator
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+
+              // Show result
+              if (context.mounted) {
+                if (result['success']) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Password changed successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(result['error'] ?? 'Failed to change password'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
             child: const Text('Change'),
           ),

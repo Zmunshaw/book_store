@@ -1,10 +1,8 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:book_store/services/api_service.dart';
 import 'package:logger/logger.dart';
 import '../models/book.dart';
 
 class BookApiService {
-  static const String baseUrl = 'http://localhost:8000';
   final Logger _logger = Logger(
     printer: PrettyPrinter(
       methodCount: 0,
@@ -19,14 +17,14 @@ class BookApiService {
     _logger.i('Searching books: query="$query", page=$page');
 
     try {
-      final uri = Uri.parse('$baseUrl/books/$query?page=$page');
-      _logger.d('Making request to: $uri');
+      final response = await ApiService.get(
+        endpoint: '/books/$query?page=$page',
+      );
 
-      final response = await http.get(uri);
-      _logger.d('Response status: ${response.statusCode}');
+      _logger.d('Response status: ${response['statusCode']}');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      if (response['success']) {
+        final data = response['data'];
         final results = data['results'] as List<dynamic>;
         final totalCount = data['count'] ?? 0;
 
@@ -52,9 +50,8 @@ class BookApiService {
         _logger.d('First book: ${books.isNotEmpty ? books.first.title : "none"}');
         return books;
       } else {
-        _logger.e('Failed to load books: HTTP ${response.statusCode}');
-        _logger.e('Response body: ${response.body}');
-        throw Exception('Failed to load books: ${response.statusCode}');
+        _logger.e('Failed to load books: ${response['error']}');
+        throw Exception('Failed to load books: ${response['error']}');
       }
     } catch (e, stackTrace) {
       _logger.e('Error fetching books', error: e, stackTrace: stackTrace);

@@ -3,6 +3,7 @@ import '../../models/book.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimensions.dart';
 import '../../theme/app_text_styles.dart';
+import '../../utils/image_utils.dart';
 
 class BookCard extends StatelessWidget {
   final Book book;
@@ -41,7 +42,7 @@ class BookCard extends StatelessWidget {
                               top: Radius.circular(AppDimensions.radiusXs),
                             ),
                             child: Image.network(
-                              book.coverImageUrl,
+                              getAbsoluteImageUrl(book.coverImageUrl),
                               width: double.infinity,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
