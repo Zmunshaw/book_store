@@ -37,7 +37,7 @@ services:
     container_name: bookstore-backend-dev
     restart: unless-stopped
     ports:
-      - "8001:8000"
+      - "8000:8000"
     volumes:
       - ../backend:/app/backend:rw
     environment:
