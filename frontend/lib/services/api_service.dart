@@ -105,6 +105,56 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> put({
+    required String endpoint,
+    required Map<String, dynamic> body,
+    String? token,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl$endpoint');
+
+      final headers = {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      };
+
+      _logger.d('PUT request to $url');
+      _logger.d('Body: $body');
+
+      final response = await http.put(
+        url,
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      _logger.d('Response status: ${response.statusCode}');
+      _logger.d('Response body: ${response.body}');
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return {
+          'success': true,
+          'data': responseData,
+          'statusCode': response.statusCode,
+        };
+      } else {
+        return {
+          'success': false,
+          'error': responseData['detail'] ?? 'An error occurred',
+          'statusCode': response.statusCode,
+        };
+      }
+    } catch (e) {
+      _logger.e('Error in PUT request: $e');
+      return {
+        'success': false,
+        'error': 'Network error: ${e.toString()}',
+        'statusCode': 0,
+      };
+    }
+  }
+
   static Future<Map<String, dynamic>> delete({
     required String endpoint,
     String? token,
