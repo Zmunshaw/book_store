@@ -2,12 +2,54 @@ import 'package:book_store/models/user.dart';
 import 'package:book_store/models/token.dart';
 import 'package:book_store/services/api_service.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static final Logger _logger = Logger();
   static String? _accessToken;
+  static const String _tokenKey = 'access_token';
 
   static String? get accessToken => _accessToken;
+
+  /// Initialize AuthService and load saved token
+  static Future<void> init() async {
+    await _loadToken();
+  }
+
+  /// Load access token from storage
+  static Future<void> _loadToken() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _accessToken = prefs.getString(_tokenKey);
+      if (_accessToken != null) {
+        _logger.i('Access token loaded from storage');
+      }
+    } catch (e) {
+      _logger.e('Error loading token: $e');
+    }
+  }
+
+  /// Save access token to storage
+  static Future<void> _saveToken(String token) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_tokenKey, token);
+      _logger.i('Access token saved to storage');
+    } catch (e) {
+      _logger.e('Error saving token: $e');
+    }
+  }
+
+  /// Clear access token from storage
+  static Future<void> _clearToken() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_tokenKey);
+      _logger.i('Access token cleared from storage');
+    } catch (e) {
+      _logger.e('Error clearing token: $e');
+    }
+  }
 
   static Future<Map<String, dynamic>> login({
     required String username,
@@ -27,6 +69,7 @@ class AuthService {
       if (response['success']) {
         final token = Token.fromJson(response['data']);
         _accessToken = token.accessToken;
+        await _saveToken(token.accessToken);
 
         _logger.i('Login successful for user: $username');
 
@@ -111,8 +154,9 @@ class AuthService {
     }
   }
 
-  static void logout() {
+  static Future<void> logout() async {
     _accessToken = null;
+    await _clearToken();
     _logger.i('User logged out');
   }
 
@@ -179,7 +223,7 @@ class AuthService {
 
       if (response['success']) {
         _logger.i('Account deleted successfully');
-        logout(); // Clear the token after deletion
+        await logout(); // Clear the token after deletion
         return {
           'success': true,
           'message': 'Account deleted successfully',

@@ -1,9 +1,15 @@
 import 'package:book_store/app_data/app_globals.dart';
+import 'package:book_store/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'widgets/main_navigation.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize AuthService to load saved token
+  await AuthService.init();
+
   runApp(const BookStoreApp());
 }
 

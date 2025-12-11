@@ -469,15 +469,45 @@ class _SettingsViewState extends State<SettingsView> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              // TODO: Implement account deletion
+            onPressed: () async {
+              // Show loading indicator
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Account deletion feature coming soon!'),
-                  backgroundColor: Colors.red,
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CircularProgressIndicator(),
                 ),
               );
+
+              // Call API to delete account
+              final result = await AuthService.deleteAccount();
+
+              // Hide loading indicator
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+
+              // Show result
+              if (context.mounted) {
+                if (result['success']) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Account deleted successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                  // Force rebuild to show login screen
+                  setState(() {});
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(result['error'] ?? 'Failed to delete account'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red,
@@ -513,12 +543,14 @@ class _SettingsViewState extends State<SettingsView> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              AuthService.logout();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Logged out successfully')),
-              );
+            onPressed: () async {
+              await AuthService.logout();
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Logged out successfully')),
+                );
+              }
               // Force rebuild to show login screen
               setState(() {});
             },

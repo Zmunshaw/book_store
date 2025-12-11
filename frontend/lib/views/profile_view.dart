@@ -242,12 +242,14 @@ class _ProfileViewState extends State<ProfileView> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              AuthService.logout();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Logged out successfully')),
-              );
+            onPressed: () async {
+              await AuthService.logout();
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Logged out successfully')),
+                );
+              }
               // Force rebuild
               setState(() {});
             },
