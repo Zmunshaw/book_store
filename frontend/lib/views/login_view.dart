@@ -1,6 +1,7 @@
 import 'package:book_store/app_data/app_globals.dart';
 import 'package:flutter/material.dart';
 import 'package:book_store/services/auth_service.dart';
+import 'package:book_store/views/register_view.dart';
 
 class LoginView extends StatefulWidget {
   final VoidCallback? onLoginSuccess;
@@ -211,10 +212,12 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Future<void> _handleRegister() async {
-    // Navigate to registration screen
-    ScaffoldMessenger.of(
+    Navigator.push(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Registration coming soon!')));
+      MaterialPageRoute(
+        builder: (context) => const RegisterView(),
+      ),
+    );
   }
 
   Future<void> _handleGuestLogin() async {

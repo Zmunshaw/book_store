@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimensions.dart';
+import '../../utils/image_utils.dart';
 
 class BookCoverImage extends StatelessWidget {
   final String coverImageUrl;
@@ -21,8 +22,10 @@ class BookCoverImage extends StatelessWidget {
       return _buildPlaceholder();
     }
 
+    final absoluteUrl = getAbsoluteImageUrl(coverImageUrl);
+
     return Image.network(
-      coverImageUrl,
+      absoluteUrl,
       height: height,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
