@@ -1,6 +1,4 @@
 import 'package:book_store/app_data/app_globals.dart';
-import 'package:book_store/services/auth_service.dart';
-import 'package:book_store/views/register_view.dart';
 import 'package:flutter/material.dart';
 import 'package:book_store/services/user_service.dart' as user_serve;
 //import '../services/user_service.dart' as user_serve;
@@ -188,7 +186,7 @@ class _LoginViewState extends State<LoginView> {
       await Future.delayed(const Duration(seconds: 2));
       final String access = await userservice.getToken(username, password);
       print('Await succeeded?');
-      print('$access');
+      print(access);
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(

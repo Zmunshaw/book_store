@@ -1,3 +1,4 @@
+import 'package:book_store/app_data/app_globals.dart';
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'widgets/main_navigation.dart';
@@ -12,7 +13,7 @@ class BookStoreApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Book Store',
+      title: appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
