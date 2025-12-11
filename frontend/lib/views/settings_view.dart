@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -21,39 +22,41 @@ class _SettingsViewState extends State<SettingsView> {
       ),
       body: ListView(
         children: [
-          _buildSection(
-            title: 'Account',
-            children: [
-              ListTile(
-                leading: const Icon(Icons.person_outline),
-                title: const Text('Profile'),
-                subtitle: const Text('Manage your profile information'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to profile
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.security),
-                title: const Text('Privacy & Security'),
-                subtitle: const Text('Manage your privacy settings'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to privacy settings
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.payment),
-                title: const Text('Payment Methods'),
-                subtitle: const Text('Manage your payment options'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to payment methods
-                },
-              ),
-            ],
-          ),
-          const Divider(height: 32),
+          if (AuthService.isLoggedIn()) ...[
+            _buildSection(
+              title: 'Account',
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.email_outlined),
+                  title: const Text('Email Preferences'),
+                  subtitle: const Text('Manage email notifications'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    _showComingSoon('Email Preferences');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.lock_outline),
+                  title: const Text('Change Password'),
+                  subtitle: const Text('Update your password'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    _showChangePasswordDialog();
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.delete_outline),
+                  title: const Text('Delete Account'),
+                  subtitle: const Text('Permanently delete your account'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    _showDeleteAccountDialog();
+                  },
+                ),
+              ],
+            ),
+            const Divider(height: 32),
+          ],
           _buildSection(
             title: 'Appearance',
             children: [
@@ -66,6 +69,12 @@ class _SettingsViewState extends State<SettingsView> {
                   setState(() {
                     _darkModeEnabled = value;
                   });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Theme preferences saved'),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
                 },
               ),
               ListTile(
@@ -106,21 +115,20 @@ class _SettingsViewState extends State<SettingsView> {
               SwitchListTile(
                 secondary: const Icon(Icons.notifications_outlined),
                 title: const Text('Push Notifications'),
-                subtitle: const Text('Receive notifications about orders and offers'),
+                subtitle: const Text('Receive notifications about new books'),
                 value: _notificationsEnabled,
                 onChanged: (value) {
                   setState(() {
                     _notificationsEnabled = value;
                   });
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.email_outlined),
-                title: const Text('Email Preferences'),
-                subtitle: const Text('Manage email notifications'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to email preferences
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(value
+                          ? 'Notifications enabled'
+                          : 'Notifications disabled'),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
                 },
               ),
             ],
@@ -134,7 +142,7 @@ class _SettingsViewState extends State<SettingsView> {
                 title: const Text('Help Center'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  // Navigate to help center
+                  _showComingSoon('Help Center');
                 },
               ),
               ListTile(
@@ -142,7 +150,7 @@ class _SettingsViewState extends State<SettingsView> {
                 title: const Text('Send Feedback'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  // Open feedback form
+                  _showComingSoon('Feedback');
                 },
               ),
               ListTile(
@@ -155,20 +163,22 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ],
           ),
-          const Divider(height: 32),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: OutlinedButton.icon(
-              onPressed: _handleLogout,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
-                padding: const EdgeInsets.symmetric(vertical: 16),
+          if (AuthService.isLoggedIn()) ...[
+            const Divider(height: 32),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: OutlinedButton.icon(
+                onPressed: _handleLogout,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                icon: const Icon(Icons.logout),
+                label: const Text('Log Out'),
               ),
-              icon: const Icon(Icons.logout),
-              label: const Text('Log Out'),
             ),
-          ),
+          ],
           const SizedBox(height: 16),
         ],
       ),
@@ -195,6 +205,12 @@ class _SettingsViewState extends State<SettingsView> {
         ),
         ...children,
       ],
+    );
+  }
+
+  void _showComingSoon(String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$feature coming soon!')),
     );
   }
 
@@ -269,10 +285,108 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
+  void _showChangePasswordDialog() {
+    final currentPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Change Password'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: currentPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Current Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: newPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'New Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm New Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              // TODO: Implement password change
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Password change feature coming soon!'),
+                ),
+              );
+            },
+            child: const Text('Change'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text(
+          'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              // TODO: Implement account deletion
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Account deletion feature coming soon!'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showAboutDialog() {
     showAboutDialog(
       context: context,
-      applicationName: 'Book Store',
+      applicationName: 'Bookify',
       applicationVersion: '1.0.0',
       applicationIcon: const Icon(Icons.book, size: 48),
       children: [
@@ -294,10 +408,13 @@ class _SettingsViewState extends State<SettingsView> {
           ),
           FilledButton(
             onPressed: () {
+              AuthService.logout();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Logged out successfully')),
               );
+              // Force rebuild to show login screen
+              setState(() {});
             },
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red,

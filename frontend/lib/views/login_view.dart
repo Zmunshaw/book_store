@@ -4,7 +4,9 @@ import 'package:book_store/views/register_view.dart';
 import 'package:flutter/material.dart';
 
 class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+  final VoidCallback? onLoginSuccess;
+
+  const LoginView({super.key, this.onLoginSuccess});
 
   @override
   State<LoginView> createState() => _LoginViewState();
@@ -186,7 +188,8 @@ class _LoginViewState extends State<LoginView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(result['message'])),
           );
-          // TODO: Navigate to home screen
+          // Trigger callback to redirect to profile/account view
+          widget.onLoginSuccess?.call();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

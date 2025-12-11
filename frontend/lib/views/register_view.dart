@@ -120,20 +120,21 @@ class _RegisterViewState extends State<RegisterView> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _usernameController,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
-                      labelText: 'Username',
-                      prefixIcon: Icon(Icons.account_circle_outlined),
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email_outlined),
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a username';
+                        return 'Please enter your email';
                       }
-                      if (value.length < 3) {
-                        return 'Username must be at least 3 characters';
+                      if (!value.contains('@') || !value.contains('.')) {
+                        return 'Please enter a valid email address';
                       }
                       if (value.length > 30) {
-                        return 'Username must be less than 30 characters';
+                        return 'Email must be less than 30 characters';
                       }
                       return null;
                     },

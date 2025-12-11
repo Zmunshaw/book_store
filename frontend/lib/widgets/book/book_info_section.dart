@@ -24,14 +24,14 @@ class BookInfoSection extends StatelessWidget {
           ),
           SizedBox(height: AppDimensions.spacingS),
           Text(
-            '> by ${book.authorFirst} ${book.authorLast}'.toUpperCase(),
+            'by ${book.authorFirst} ${book.authorLast}'.toUpperCase(),
             style: AppTextStyles.headlineSmall.copyWith(
               color: AppColors.secondary,
               letterSpacing: AppDimensions.letterSpacingNormal,
             ),
           ),
           SizedBox(height: AppDimensions.spacingL),
-          if (book.publishedDate.year > 1)
+          if (book.publishedDate!.year > 1)
             Row(
               children: [
                 Icon(
@@ -41,7 +41,7 @@ class BookInfoSection extends StatelessWidget {
                 ),
                 SizedBox(width: AppDimensions.spacingS),
                 Text(
-                  '> PUBLISHED: ${book.publishedDate.year}',
+                  'PUBLISHED: ${book.publishedDate?.year}',
                   style: AppTextStyles.bodyLarge.copyWith(
                     letterSpacing: AppDimensions.letterSpacingNormal,
                   ),
@@ -51,7 +51,7 @@ class BookInfoSection extends StatelessWidget {
           SizedBox(height: AppDimensions.spacingL),
           if (book.genres.isNotEmpty) ...[
             Text(
-              '> GENRES',
+              'GENRES',
               style: AppTextStyles.headlineMedium.copyWith(
                 letterSpacing: AppDimensions.letterSpacingLoose,
               ),
@@ -88,7 +88,7 @@ class BookInfoSection extends StatelessWidget {
           ],
           if (book.synopsis.isNotEmpty) ...[
             Text(
-              '> SYNOPSIS',
+              'SYNOPSIS',
               style: AppTextStyles.headlineMedium.copyWith(
                 letterSpacing: AppDimensions.letterSpacingLoose,
               ),

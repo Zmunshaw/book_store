@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import '../models/book.dart';
+import '../services/auth_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/book/book_cover_image.dart';
 import '../widgets/book/book_info_section.dart';
+import '../widgets/add_to_collection_dialog.dart';
 
 class BookDetailView extends StatefulWidget {
   final Book book;
@@ -65,9 +67,29 @@ class _BookDetailViewState extends State<BookDetailView> {
               ),
             ),
             BookInfoSection(book: widget.book),
+            if (AuthService.isLoggedIn())
+              Padding(
+                padding: AppDimensions.paddingL,
+                child: FilledButton.icon(
+                  onPressed: _showAddToCollectionDialog,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add to Collection'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                ),
+              ),
+            SizedBox(height: AppDimensions.spacingXl),
           ],
         ),
       ),
+    );
+  }
+
+  void _showAddToCollectionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddToCollectionDialog(book: widget.book),
     );
   }
 }
