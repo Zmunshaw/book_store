@@ -23,7 +23,10 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    
+
+class PasswordChange(BaseModel):
+    current_password: str = Field(..., min_length=1, description="Current password")
+    new_password: str = Field(..., min_length=6, description="New password")
 
 class BookInCollection(BaseModel):
     bID: str

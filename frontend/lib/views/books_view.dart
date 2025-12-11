@@ -3,6 +3,7 @@ import '../models/book.dart';
 import '../models/collection.dart';
 import '../services/collection_service.dart';
 import '../services/auth_service.dart';
+import '../utils/image_utils.dart';
 import 'book_detail_view.dart';
 
 class BooksView extends StatefulWidget {
@@ -259,7 +260,7 @@ class _BooksViewState extends State<BooksView> {
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          book.coverImageUrl,
+                          getAbsoluteImageUrl(book.coverImageUrl),
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Icon(Icons.menu_book,

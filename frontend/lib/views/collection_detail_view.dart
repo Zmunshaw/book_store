@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/collection.dart';
 import '../models/book.dart';
 import '../services/collection_service.dart';
+import '../utils/image_utils.dart';
 import 'book_detail_view.dart';
 
 class CollectionDetailView extends StatefulWidget {
@@ -126,7 +127,7 @@ class _CollectionDetailViewState extends State<CollectionDetailView> {
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          book.coverImageUrl,
+                          getAbsoluteImageUrl(book.coverImageUrl),
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Icon(Icons.menu_book,
