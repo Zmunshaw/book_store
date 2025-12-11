@@ -1,3 +1,4 @@
+import 'package:book_store/app_data/app_globals.dart';
 import 'package:flutter/material.dart';
 
 class LoginView extends StatefulWidget {
@@ -33,7 +34,7 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Book Store',
+                  appName,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
