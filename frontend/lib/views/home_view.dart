@@ -22,16 +22,36 @@ class _HomeViewState extends State<HomeView> {
       printEmojis: false,
     ),
   );
+  final ScrollController _scrollController = ScrollController();
 
   List<Book> _featuredBooks = [];
   bool _isLoading = true;
+  bool _isLoadingMore = false;
   String? _errorMessage;
+  int _currentPage = 1;
+  bool _hasMore = true;
 
   @override
   void initState() {
     super.initState();
     _logger.i('HomeView initialized');
     _loadBooks();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (!_isLoadingMore && _hasMore) {
+        _loadMoreBooks();
+      }
+    }
   }
 
   Future<void> _loadBooks() async {
@@ -39,6 +59,9 @@ class _HomeViewState extends State<HomeView> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _currentPage = 1;
+      _featuredBooks = [];
+      _hasMore = true;
     });
 
     try {
@@ -47,6 +70,7 @@ class _HomeViewState extends State<HomeView> {
       setState(() {
         _featuredBooks = books;
         _isLoading = false;
+        _hasMore = books.isNotEmpty;
       });
     } catch (e) {
       _logger.e('Failed to load books', error: e);
@@ -57,10 +81,38 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
+  Future<void> _loadMoreBooks() async {
+    if (_isLoadingMore || !_hasMore) return;
+
+    setState(() {
+      _isLoadingMore = true;
+    });
+
+    _logger.i('Loading more books... page ${_currentPage + 1}');
+
+    try {
+      final books = await _apiService.searchBooks('bestseller', page: _currentPage + 1);
+      _logger.i('Loaded ${books.length} more books');
+
+      setState(() {
+        _currentPage++;
+        _featuredBooks.addAll(books);
+        _isLoadingMore = false;
+        _hasMore = books.isNotEmpty;
+      });
+    } catch (e) {
+      _logger.e('Failed to load more books', error: e);
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
+        controller: _scrollController,
         slivers: [
           SliverAppBar(
             expandedHeight: 200.0,
@@ -159,6 +211,27 @@ class _HomeViewState extends State<HomeView> {
                     return _buildBookCard(book);
                   },
                   childCount: _featuredBooks.length,
+                ),
+              ),
+            ),
+          if (_isLoadingMore)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
+          if (!_isLoading && !_hasMore && _featuredBooks.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text(
+                    'No more books to load',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
                 ),
               ),
             ),
