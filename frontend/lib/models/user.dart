@@ -1,35 +1,78 @@
 class User {
-  final String id;
-  final String username;
-  final String? firstName;
-  final String? lastName;
-  final DateTime dateOfBirth;
+  final String uID;
+  final String uName;
+  final String fName;
+  final String lName;
+  final DateTime dob;
 
   User({
-    required this.id,
-    required this.username,
-    this.firstName,
-    this.lastName,
-    required this.dateOfBirth
+    required this.uID,
+    required this.uName,
+    required this.fName,
+    required this.lName,
+    required this.dob,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['iud'] as String,
-      username: json['uname'] as String,
-      firstName: json['fname'] as String?,
-      lastName: json['lname'] as String?,
-      dateOfBirth: DateTime.parse(json['dob'] as String)
+      uID: json['uID'] as String,
+      uName: json['uName'] as String,
+      fName: json['fName'] as String,
+      lName: json['lName'] as String,
+      dob: DateTime.parse(json['dob'] as String),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'uid': id,
-      'uname': username,
-      'fname': firstName,
-      'lname': lastName,
-      'dob': dateOfBirth,
+      'uID': uID,
+      'uName': uName,
+      'fName': fName,
+      'lName': lName,
+      'dob': dob.toIso8601String().split('T')[0], // Format as YYYY-MM-DD
+    };
+  }
+}
+
+class UserCreate {
+  final String fName;
+  final String lName;
+  final DateTime dob;
+  final String uName;
+  final String uPass;
+
+  UserCreate({
+    required this.fName,
+    required this.lName,
+    required this.dob,
+    required this.uName,
+    required this.uPass,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'fName': fName,
+      'lName': lName,
+      'dob': dob.toIso8601String().split('T')[0], // Format as YYYY-MM-DD
+      'uName': uName,
+      'uPass': uPass,
+    };
+  }
+}
+
+class UserLogin {
+  final String uName;
+  final String uPass;
+
+  UserLogin({
+    required this.uName,
+    required this.uPass,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'uName': uName,
+      'uPass': uPass,
     };
   }
 }
