@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import '../models/book.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_dimensions.dart';
+import '../theme/app_text_styles.dart';
 import '../widgets/book/book_cover_image.dart';
 import '../widgets/book/book_info_section.dart';
 
@@ -39,22 +42,21 @@ class _BookDetailViewState extends State<BookDetailView> {
       appBar: AppBar(
         title: Text(
           widget.book.title.toUpperCase(),
-          style: const TextStyle(
-            letterSpacing: 1.5,
-            fontWeight: FontWeight.bold,
+          style: AppTextStyles.headlineMedium.copyWith(
+            letterSpacing: AppDimensions.letterSpacingLoose,
           ),
         ),
-        backgroundColor: const Color(0xFF010409),
-        foregroundColor: const Color(0xFF00FF41),
+        backgroundColor: AppColors.background,
+        foregroundColor: AppColors.primary,
       ),
-      backgroundColor: const Color(0xFF010409),
+      backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: AppDimensions.paddingL,
                 child: BookCoverImage(
                   coverImageUrl: widget.book.coverImageUrl,
                   height: 300,
