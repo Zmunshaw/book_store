@@ -23,6 +23,7 @@ class _HomeViewState extends State<HomeView> {
     ),
   );
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
 
   List<Book> _featuredBooks = [];
   bool _isLoading = true;
@@ -30,6 +31,7 @@ class _HomeViewState extends State<HomeView> {
   String? _errorMessage;
   int _currentPage = 1;
   bool _hasMore = true;
+  String _searchQuery = 'bestseller';
 
   @override
   void initState() {
@@ -37,11 +39,15 @@ class _HomeViewState extends State<HomeView> {
     _logger.i('HomeView initialized');
     _loadBooks();
     _scrollController.addListener(_onScroll);
+    _searchController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -54,18 +60,21 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  Future<void> _loadBooks() async {
-    _logger.i('Loading books...');
+  Future<void> _loadBooks({String? query}) async {
+    final searchQuery = query ?? _searchQuery;
+    _logger.i('Loading books with query: $searchQuery');
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
       _currentPage = 1;
       _featuredBooks = [];
       _hasMore = true;
+      _searchQuery = searchQuery;
     });
 
     try {
-      final books = await _apiService.searchBooks('bestseller', page: 1);
+      final books = await _apiService.searchBooks(searchQuery, page: 1);
       _logger.i('Books loaded successfully: ${books.length} books');
       setState(() {
         _featuredBooks = books;
@@ -91,7 +100,7 @@ class _HomeViewState extends State<HomeView> {
     _logger.i('Loading more books... page ${_currentPage + 1}');
 
     try {
-      final books = await _apiService.searchBooks('bestseller', page: _currentPage + 1);
+      final books = await _apiService.searchBooks(_searchQuery, page: _currentPage + 1);
       _logger.i('Loaded ${books.length} more books');
 
       setState(() {
@@ -106,6 +115,12 @@ class _HomeViewState extends State<HomeView> {
         _isLoadingMore = false;
       });
     }
+  }
+
+  void _onSearchSubmitted(String query) {
+    if (query.trim().isEmpty) return;
+    _logger.i('Search submitted: $query');
+    _loadBooks(query: query.trim());
   }
 
   @override
@@ -141,12 +156,36 @@ class _HomeViewState extends State<HomeView> {
             padding: const EdgeInsets.all(16.0),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search for books...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              _loadBooks(query: 'bestseller');
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                  ),
+                  onSubmitted: _onSearchSubmitted,
+                  textInputAction: TextInputAction.search,
+                ),
+                const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Featured Books',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    Text(
+                      _searchQuery == 'bestseller' ? 'Featured Books' : 'Search Results',
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     if (!_isLoading)
                       IconButton(
