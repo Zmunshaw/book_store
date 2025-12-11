@@ -1,4 +1,6 @@
 import 'package:book_store/app_data/app_globals.dart';
+import 'package:book_store/services/auth_service.dart';
+import 'package:book_store/views/register_view.dart';
 import 'package:flutter/material.dart';
 
 class LoginView extends StatefulWidget {
@@ -172,22 +174,35 @@ class _LoginViewState extends State<LoginView> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      final result = await AuthService.login(
+        username: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
 
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login successful!')),
-        );
+
+        if (result['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result['message'])),
+          );
+          // TODO: Navigate to home screen
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['error'] ?? 'Login failed'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
 
   Future<void> _handleRegister() async {
-    // Navigate to registration screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Registration coming soon!')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RegisterView()),
     );
   }
 

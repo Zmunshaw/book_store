@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import '../models/book.dart';
 import '../services/book_api_service.dart';
+import '../services/auth_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/book/book_card.dart';
+import '../widgets/add_to_collection_dialog.dart';
 import 'book_detail_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -330,15 +332,25 @@ class _HomeViewState extends State<HomeView> {
       },
       onAddPressed: () {
         _logger.i('Add button pressed for: ${book.title}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Added "${book.title}" to collection'),
-            duration: const Duration(seconds: 2),
-            backgroundColor: AppColors.primary,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _showAddToCollectionDialog(book);
       },
+    );
+  }
+
+  void _showAddToCollectionDialog(Book book) {
+    if (!AuthService.isLoggedIn()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please log in to add books to collections'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AddToCollectionDialog(book: book),
     );
   }
 }
