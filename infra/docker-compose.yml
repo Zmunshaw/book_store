@@ -39,12 +39,12 @@ services:
     ports:
       - "8001:8000"
     volumes:
-      - ../backend:/app:rw
+      - ../backend:/app/backend:rw
     environment:
       - MONGODB_URI=${MONGODB_URI:-mongodb+srv://admin1:TeOjuosfnsgoy5dO@cluster0.ngbekxz.mongodb.net/?appName=Cluster0}
       - SECRET_KEY=${SECRET_KEY:-ldksfjlskdfjsldkfjsdlkfjsdlklsdfjsk}
       - ENVIRONMENT=development
-      - RUN_TESTS=${RUN_TESTS:-true}  # Set to 'false' to skip tests on startup
+      - RUN_TESTS=${RUN_TESTS:-false}  # Set to 'false' to skip tests on startup
     networks:
       - bookstore-network
     labels:

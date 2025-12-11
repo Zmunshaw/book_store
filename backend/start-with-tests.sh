@@ -23,14 +23,12 @@ if [ "$RUN_TESTS" = "true" ]; then
     echo -e "${YELLOW}Running backend tests...${NC}"
 
     # Run pytest with coverage from backend directory
-    cd backend
-    if pytest tests/ -v --tb=short --cov=backend --cov-report=term-missing --cov-fail-under=70; then
+    if pytest backend/tests/ -v --tb=short --cov=backend --cov-report=term-missing --cov-fail-under=70; then
         echo -e "${GREEN}✓ All tests passed successfully!${NC}"
     else
         echo -e "${RED}✗ Tests failed! Backend will not start.${NC}"
         exit 1
     fi
-    cd ..
 
     echo ""
     echo "========================================="
