@@ -77,7 +77,6 @@ class AuthService {
 
         _logger.i('User created successfully: ${user.uName}');
 
-        // Automatically log in after successful registration
         final loginResult = await login(
           username: username,
           password: password,

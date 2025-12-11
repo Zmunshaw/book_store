@@ -1,10 +1,10 @@
 import 'dart:convert';
+import 'package:book_store/app_data/app_globals.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
 class ApiService {
-  // Update this to your backend URL
-  static const String baseUrl = 'http://localhost:8000';
+  static const String baseUrl = backendUrl;
 
   static final Logger _logger = Logger();
 
