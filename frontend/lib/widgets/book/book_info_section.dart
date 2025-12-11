@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/book.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_dimensions.dart';
+import '../../theme/app_text_styles.dart';
 
 class BookInfoSection extends StatelessWidget {
   final Book book;
@@ -9,107 +12,92 @@ class BookInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: AppDimensions.paddingL,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             book.title.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF00FF41),
-              letterSpacing: 1.2,
+            style: AppTextStyles.displayMedium.copyWith(
+              letterSpacing: AppDimensions.letterSpacingRelaxed,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: AppDimensions.spacingS),
           Text(
-            '> by ${book.authorFirst} ${book.authorLast}'.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 18,
-              color: Color(0xFF00D9FF),
-              letterSpacing: 1.0,
+            'by ${book.authorFirst} ${book.authorLast}'.toUpperCase(),
+            style: AppTextStyles.headlineSmall.copyWith(
+              color: AppColors.secondary,
+              letterSpacing: AppDimensions.letterSpacingNormal,
             ),
           ),
-          const SizedBox(height: 16),
-          if (book.publishedDate.year > 1)
+          SizedBox(height: AppDimensions.spacingL),
+          if (book.publishedDate!.year > 1)
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.calendar_today,
-                  size: 16,
-                  color: Color(0xFF00FF41),
+                  size: AppDimensions.iconS,
+                  color: AppColors.primary,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: AppDimensions.spacingS),
                 Text(
-                  '> PUBLISHED: ${book.publishedDate.year}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF00FF41),
-                    letterSpacing: 1.0,
+                  'PUBLISHED: ${book.publishedDate?.year}',
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    letterSpacing: AppDimensions.letterSpacingNormal,
                   ),
                 ),
               ],
             ),
-          const SizedBox(height: 16),
+          SizedBox(height: AppDimensions.spacingL),
           if (book.genres.isNotEmpty) ...[
-            const Text(
-              '> GENRES',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF00FF41),
-                letterSpacing: 1.5,
+            Text(
+              'GENRES',
+              style: AppTextStyles.headlineMedium.copyWith(
+                letterSpacing: AppDimensions.letterSpacingLoose,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppDimensions.spacingS),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: AppDimensions.spacingS,
+              runSpacing: AppDimensions.spacingS,
               children: book.genres.map((genre) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppDimensions.spacingM,
+                    vertical: AppDimensions.spacingXs + 2,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0D1117),
+                    color: AppColors.surface,
                     border: Border.all(
-                      color: const Color(0xFF00D9FF).withValues(alpha: 0.5),
-                      width: 1,
+                      color: AppColors.secondaryWithOpacity(0.5),
+                      width: AppDimensions.borderWidthThin,
                     ),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: AppDimensions.borderRadiusXs,
                   ),
                   child: Text(
                     genre.toUpperCase(),
-                    style: const TextStyle(
-                      color: Color(0xFF00D9FF),
-                      fontSize: 12,
-                      letterSpacing: 1.0,
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.secondary,
+                      letterSpacing: AppDimensions.letterSpacingNormal,
                     ),
                   ),
                 );
               }).toList(),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppDimensions.spacingL),
           ],
           if (book.synopsis.isNotEmpty) ...[
-            const Text(
-              '> SYNOPSIS',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF00FF41),
-                letterSpacing: 1.5,
+            Text(
+              'SYNOPSIS',
+              style: AppTextStyles.headlineMedium.copyWith(
+                letterSpacing: AppDimensions.letterSpacingLoose,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppDimensions.spacingS),
             Text(
               book.synopsis,
-              style: const TextStyle(
-                fontSize: 16,
+              style: AppTextStyles.bodyLarge.copyWith(
                 height: 1.5,
-                color: Color(0xFF00FF41),
               ),
             ),
           ],

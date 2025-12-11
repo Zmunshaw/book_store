@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/collection.dart';
+import '../services/collection_service.dart';
+import '../services/auth_service.dart';
+import 'collection_detail_view.dart';
 
 class CollectionsView extends StatefulWidget {
   const CollectionsView({super.key});
@@ -9,30 +12,43 @@ class CollectionsView extends StatefulWidget {
 }
 
 class _CollectionsViewState extends State<CollectionsView> {
-  // Mock data - replace with API calls later
-  final List<Collection> _collections = [
-    Collection(
-      id: '1',
-      name: 'Classic Literature',
-      imageURL: '',
-      userID: 'user1',
-      books: [],
-    ),
-    Collection(
-      id: '2',
-      name: 'Science Fiction',
-      imageURL: '',
-      userID: 'user1',
-      books: [],
-    ),
-    Collection(
-      id: '3',
-      name: 'Mystery & Thriller',
-      imageURL: '',
-      userID: 'user1',
-      books: [],
-    ),
-  ];
+  List<Collection> _collections = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCollections();
+  }
+
+  Future<void> _loadCollections() async {
+    if (!AuthService.isLoggedIn()) {
+      setState(() {
+        _collections = [];
+        _errorMessage = 'Please log in to view your collections';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final result = await CollectionService.getUserCollections();
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        if (result['success']) {
+          _collections = result['collections'] as List<Collection>;
+        } else {
+          _errorMessage = result['error'] ?? 'Failed to load collections';
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,21 +57,68 @@ class _CollectionsViewState extends State<CollectionsView> {
         title: const Text('Collections'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadCollections,
+            tooltip: 'Refresh',
+          ),
+          IconButton(
             icon: const Icon(Icons.add),
-            onPressed: _showAddCollectionDialog,
+            onPressed: AuthService.isLoggedIn() ? _showAddCollectionDialog : null,
             tooltip: 'Create Collection',
           ),
         ],
       ),
-      body: _collections.isEmpty
-          ? _buildEmptyState()
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _collections.length,
-              itemBuilder: (context, index) {
-                return _buildCollectionCard(_collections[index]);
-              },
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 80, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              _errorMessage!,
+              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 16),
+            if (!AuthService.isLoggedIn())
+              ElevatedButton(
+                onPressed: () {
+                  // User can navigate to login tab manually
+                },
+                child: const Text('Go to Login'),
+              )
+            else
+              ElevatedButton(
+                onPressed: _loadCollections,
+                child: const Text('Retry'),
+              ),
+          ],
+        ),
+      );
+    }
+
+    if (_collections.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _collections.length,
+      itemBuilder: (context, index) {
+        return _buildCollectionCard(_collections[index]);
+      },
     );
   }
 
@@ -88,7 +151,12 @@ class _CollectionsViewState extends State<CollectionsView> {
       elevation: 2,
       child: InkWell(
         onTap: () {
-          // Navigate to collection details
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CollectionDetailView(collection: collection),
+            ),
+          ).then((_) => _loadCollections());
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -134,7 +202,7 @@ class _CollectionsViewState extends State<CollectionsView> {
                   IconButton(
                     icon: const Icon(Icons.more_vert),
                     onPressed: () {
-                      // Show options menu
+                      _showOptionsMenu(collection);
                     },
                   ),
                 ],
@@ -146,29 +214,86 @@ class _CollectionsViewState extends State<CollectionsView> {
     );
   }
 
+  void _showOptionsMenu(Collection collection) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.delete),
+              title: const Text('Delete Collection'),
+              onTap: () {
+                Navigator.pop(context);
+                _confirmDeleteCollection(collection);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmDeleteCollection(Collection collection) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Collection'),
+        content: Text('Are you sure you want to delete "${collection.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _deleteCollection(collection.id);
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteCollection(String collectionId) async {
+    final result = await CollectionService.deleteCollection(
+      collectionId: collectionId,
+    );
+
+    if (mounted) {
+      if (result['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Collection deleted')),
+        );
+        _loadCollections();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['error'] ?? 'Failed to delete collection'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   void _showAddCollectionDialog() {
+    final nameController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Create Collection'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Collection Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Description (optional)',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-            ),
-          ],
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: 'Collection Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
         ),
         actions: [
           TextButton(
@@ -176,9 +301,34 @@ class _CollectionsViewState extends State<CollectionsView> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              // Create collection
+            onPressed: () async {
+              final name = nameController.text.trim();
+              if (name.isEmpty) {
+                return;
+              }
+
               Navigator.pop(context);
+
+              final result = await CollectionService.createCollection(
+                name: name,
+              );
+
+              if (mounted) {
+                if (result['success']) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Collection created')),
+                  );
+                  _loadCollections();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          result['error'] ?? 'Failed to create collection'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
             child: const Text('Create'),
           ),
