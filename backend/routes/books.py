@@ -1,11 +1,12 @@
 from fastapi import APIRouter
+from backend.services import db
 from backend.services.openbook import OpenBookAPI
 
 router = APIRouter()
-api = OpenBookAPI()
 
 @router.get("/{book_name}")
-def search_book(book_name: str, page: int = 1):
+async def search_book(book_name: str, page: int = 1):
+    api = OpenBookAPI(db.database)
     """
     Returns a list of books that match the search query. No auth required.
 
@@ -35,4 +36,4 @@ def search_book(book_name: str, page: int = 1):
         - If OpenLibrary rate limits or returns invalid data,
           this endpoint will return an empty list and count=0.
     """
-    return api.search(book_name, page)
+    return await api.search(book_name, page)

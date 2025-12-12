@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import '../models/book.dart';
+import '../services/auth_service.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_dimensions.dart';
+import '../theme/app_text_styles.dart';
 import '../widgets/book/book_cover_image.dart';
 import '../widgets/book/book_info_section.dart';
+import '../widgets/add_to_collection_dialog.dart';
 
 class BookDetailView extends StatefulWidget {
   final Book book;
@@ -39,22 +44,21 @@ class _BookDetailViewState extends State<BookDetailView> {
       appBar: AppBar(
         title: Text(
           widget.book.title.toUpperCase(),
-          style: const TextStyle(
-            letterSpacing: 1.5,
-            fontWeight: FontWeight.bold,
+          style: AppTextStyles.headlineMedium.copyWith(
+            letterSpacing: AppDimensions.letterSpacingLoose,
           ),
         ),
-        backgroundColor: const Color(0xFF010409),
-        foregroundColor: const Color(0xFF00FF41),
+        backgroundColor: AppColors.background,
+        foregroundColor: AppColors.primary,
       ),
-      backgroundColor: const Color(0xFF010409),
+      backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: AppDimensions.paddingL,
                 child: BookCoverImage(
                   coverImageUrl: widget.book.coverImageUrl,
                   height: 300,
@@ -63,9 +67,29 @@ class _BookDetailViewState extends State<BookDetailView> {
               ),
             ),
             BookInfoSection(book: widget.book),
+            if (AuthService.isLoggedIn())
+              Padding(
+                padding: AppDimensions.paddingL,
+                child: FilledButton.icon(
+                  onPressed: _showAddToCollectionDialog,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add to Collection'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                ),
+              ),
+            SizedBox(height: AppDimensions.spacingXl),
           ],
         ),
       ),
+    );
+  }
+
+  void _showAddToCollectionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddToCollectionDialog(book: widget.book),
     );
   }
 }

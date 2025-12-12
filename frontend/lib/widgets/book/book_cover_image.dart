@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_dimensions.dart';
+import '../../utils/image_utils.dart';
 
 class BookCoverImage extends StatelessWidget {
   final String coverImageUrl;
@@ -19,8 +22,10 @@ class BookCoverImage extends StatelessWidget {
       return _buildPlaceholder();
     }
 
+    final absoluteUrl = getAbsoluteImageUrl(coverImageUrl);
+
     return Image.network(
-      coverImageUrl,
+      absoluteUrl,
       height: height,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
@@ -34,11 +39,11 @@ class BookCoverImage extends StatelessWidget {
         }
         return Container(
           height: height,
-          width: 200,
-          color: const Color(0xFF0D1117),
-          child: const Center(
+          width: AppDimensions.imageWidthL,
+          color: AppColors.surface,
+          child: Center(
             child: CircularProgressIndicator(
-              color: Color(0xFF00FF41),
+              color: AppColors.primary,
             ),
           ),
         );
@@ -49,18 +54,18 @@ class BookCoverImage extends StatelessWidget {
   Widget _buildPlaceholder() {
     return Container(
       height: height,
-      width: 200,
+      width: AppDimensions.imageWidthL,
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1117),
+        color: AppColors.surface,
         border: Border.all(
-          color: const Color(0xFF00FF41).withValues(alpha: 0.3),
-          width: 2,
+          color: AppColors.primaryWithOpacity(0.3),
+          width: AppDimensions.borderWidthMedium,
         ),
       ),
-      child: const Icon(
+      child: Icon(
         Icons.terminal,
-        size: 100,
-        color: Color(0xFF00FF41),
+        size: AppDimensions.iconHuge,
+        color: AppColors.primary,
       ),
     );
   }

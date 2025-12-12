@@ -1,7 +1,12 @@
+import 'package:book_store/app_data/app_globals.dart';
 import 'package:flutter/material.dart';
+import 'package:book_store/services/auth_service.dart';
+import 'package:book_store/views/register_view.dart';
 
 class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+  final VoidCallback? onLoginSuccess;
+
+  const LoginView({super.key, this.onLoginSuccess});
 
   @override
   State<LoginView> createState() => _LoginViewState();
@@ -9,7 +14,8 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  // final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
@@ -33,7 +39,7 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Book Store',
+                  appName,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -42,9 +48,9 @@ class _LoginViewState extends State<LoginView> {
                 const SizedBox(height: 8),
                 Text(
                   'Sign in to your account',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
@@ -54,20 +60,23 @@ class _LoginViewState extends State<LoginView> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
+                        controller: _usernameController,
+                        // keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         decoration: const InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: Icon(Icons.email_outlined),
+                          // labelText: 'Email',
+                          labelText: 'Username',
+                          // prefixIcon: Icon(Icons.email_outlined),
+                          prefixIcon: Icon(Icons.person),
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
+                            return 'Please enter your Username';
                           }
-                          if (!value.contains('@')) {
-                            return 'Please enter a valid email';
-                          }
+                          // if (!value.contains('@')) {
+                          //   return 'Please enter a valid email';
+                          // }
                           return null;
                         },
                       ),
@@ -171,34 +180,55 @@ class _LoginViewState extends State<LoginView> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      final String username = _usernameController.text;
+      final String password = _passwordController.text;
+
+      final result = await AuthService.login(
+        username: username,
+        password: password,
+      );
 
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login successful!')),
-        );
+
+        if (result['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result['message'] ?? 'Login successful!')),
+          );
+
+          if (widget.onLoginSuccess != null) {
+            widget.onLoginSuccess!();
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['error'] ?? 'Login failed'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
 
   Future<void> _handleRegister() async {
-    // Navigate to registration screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Registration coming soon!')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const RegisterView(),
+      ),
     );
   }
 
   Future<void> _handleGuestLogin() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Continuing as guest...')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Continuing as guest...')));
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }

@@ -15,11 +15,11 @@ services:
       - MONGODB_URI=${MONGODB_URI:-mongodb+srv://admin1:TeOjuosfnsgoy5dO@cluster0.ngbekxz.mongodb.net/?appName=Cluster0}
       - SECRET_KEY=${SECRET_KEY:-ldksfjlskdfjsldkfjsdlkfjsdlklsdfjsk}
       - ENVIRONMENT=production
-      - RUN_TESTS=${RUN_TESTS:-true}  # Set to 'false' to skip tests on startup
+      - RUN_TESTS=${RUN_TESTS:-true}
     networks:
       - bookstore-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      test: ["CMD", "curl", "-f", "https://mobile-dev.zacharymunshaw.dev/docs"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -28,7 +28,7 @@ services:
       - "com.bookstore.service=backend"
       - "com.bookstore.environment=production"
 
-  # Backend Development Service (with hot reload)
+    # Backend Development Service
   backend-dev:
     build:
       context: ..
@@ -44,7 +44,7 @@ services:
       - MONGODB_URI=${MONGODB_URI:-mongodb+srv://admin1:TeOjuosfnsgoy5dO@cluster0.ngbekxz.mongodb.net/?appName=Cluster0}
       - SECRET_KEY=${SECRET_KEY:-ldksfjlskdfjsldkfjsdlkfjsdlklsdfjsk}
       - ENVIRONMENT=development
-      - RUN_TESTS=${RUN_TESTS:-false}  # Set to 'false' to skip tests on startup
+      - RUN_TESTS=${RUN_TESTS:-false}
     networks:
       - bookstore-network
     labels:
@@ -53,7 +53,7 @@ services:
     profiles:
       - dev
 
-  # MongoDB Local (Optional - for local development without Atlas)
+  # MongoDB Local
   mongodb:
     image: mongo:7.0
     container_name: bookstore-mongodb
@@ -81,7 +81,7 @@ services:
     profiles:
       - local-db
 
-  # Nginx Reverse Proxy (Optional)
+  # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
     container_name: bookstore-nginx
@@ -101,7 +101,7 @@ services:
     profiles:
       - proxy
 
-  # Redis Cache (Optional - for future caching)
+  # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: bookstore-redis
@@ -122,6 +122,19 @@ services:
       - "com.bookstore.service=cache"
     profiles:
       - cache
+
+  # Cloudflare Tunnel
+  tunnel:
+    container_name: cloudflared-tunnel
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiZTNmZWQ2MTJmMjY5Y2U0N2JmMjc4NmEyN2RlMmZhMTciLCJ0IjoiYTExNzI3ZTItMGEyNS00NjU1LTgyN2YtYWI5NTE0YWQ1ODFjIiwicyI6Ik5UQTJOVEU1TldVdFltUTFOeTAwTmpKbUxUazFZekV0TURneFl6VXdNVGN5TVRFMSJ9      
+    networks:
+      - bookstore-network
+    volumes:
+    - ./cloudflared:/etc/cloudflared
 
 networks:
   bookstore-network:

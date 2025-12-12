@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
+import '../services/settings_service.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -12,48 +14,76 @@ class _SettingsViewState extends State<SettingsView> {
   bool _darkModeEnabled = false;
   String _selectedLanguage = 'English';
   double _fontSize = 16.0;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    await SettingsService.init();
+    setState(() {
+      _notificationsEnabled = SettingsService.getNotificationsEnabled();
+      _darkModeEnabled = SettingsService.getDarkMode();
+      _selectedLanguage = SettingsService.getLanguage();
+      _fontSize = SettingsService.getFontSize();
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
       ),
       body: ListView(
         children: [
-          _buildSection(
-            title: 'Account',
-            children: [
-              ListTile(
-                leading: const Icon(Icons.person_outline),
-                title: const Text('Profile'),
-                subtitle: const Text('Manage your profile information'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to profile
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.security),
-                title: const Text('Privacy & Security'),
-                subtitle: const Text('Manage your privacy settings'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to privacy settings
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.payment),
-                title: const Text('Payment Methods'),
-                subtitle: const Text('Manage your payment options'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to payment methods
-                },
-              ),
-            ],
-          ),
-          const Divider(height: 32),
+          if (AuthService.isLoggedIn()) ...[
+            _buildSection(
+              title: 'Account',
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.email_outlined),
+                  title: const Text('Email Preferences'),
+                  subtitle: const Text('Manage email notifications'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    _showComingSoon('Email Preferences');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.lock_outline),
+                  title: const Text('Change Password'),
+                  subtitle: const Text('Update your password'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    _showChangePasswordDialog();
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.delete_outline),
+                  title: const Text('Delete Account'),
+                  subtitle: const Text('Permanently delete your account'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    _showDeleteAccountDialog();
+                  },
+                ),
+              ],
+            ),
+            const Divider(height: 32),
+          ],
           _buildSection(
             title: 'Appearance',
             children: [
@@ -62,10 +92,19 @@ class _SettingsViewState extends State<SettingsView> {
                 title: const Text('Dark Mode'),
                 subtitle: const Text('Use dark theme'),
                 value: _darkModeEnabled,
-                onChanged: (value) {
+                onChanged: (value) async {
                   setState(() {
                     _darkModeEnabled = value;
                   });
+                  await SettingsService.setDarkMode(value);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Theme preferences saved'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  }
                 },
               ),
               ListTile(
@@ -84,6 +123,9 @@ class _SettingsViewState extends State<SettingsView> {
                       setState(() {
                         _fontSize = value;
                       });
+                    },
+                    onChangeEnd: (value) async {
+                      await SettingsService.setFontSize(value);
                     },
                   ),
                 ),
@@ -106,21 +148,23 @@ class _SettingsViewState extends State<SettingsView> {
               SwitchListTile(
                 secondary: const Icon(Icons.notifications_outlined),
                 title: const Text('Push Notifications'),
-                subtitle: const Text('Receive notifications about orders and offers'),
+                subtitle: const Text('Receive notifications about new books'),
                 value: _notificationsEnabled,
-                onChanged: (value) {
+                onChanged: (value) async {
                   setState(() {
                     _notificationsEnabled = value;
                   });
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.email_outlined),
-                title: const Text('Email Preferences'),
-                subtitle: const Text('Manage email notifications'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to email preferences
+                  await SettingsService.setNotificationsEnabled(value);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(value
+                            ? 'Notifications enabled'
+                            : 'Notifications disabled'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  }
                 },
               ),
             ],
@@ -134,7 +178,7 @@ class _SettingsViewState extends State<SettingsView> {
                 title: const Text('Help Center'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  // Navigate to help center
+                  _showComingSoon('Help Center');
                 },
               ),
               ListTile(
@@ -142,7 +186,7 @@ class _SettingsViewState extends State<SettingsView> {
                 title: const Text('Send Feedback'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  // Open feedback form
+                  _showComingSoon('Feedback');
                 },
               ),
               ListTile(
@@ -155,20 +199,22 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ],
           ),
-          const Divider(height: 32),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: OutlinedButton.icon(
-              onPressed: _handleLogout,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
-                padding: const EdgeInsets.symmetric(vertical: 16),
+          if (AuthService.isLoggedIn()) ...[
+            const Divider(height: 32),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: OutlinedButton.icon(
+                onPressed: _handleLogout,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                icon: const Icon(Icons.logout),
+                label: const Text('Log Out'),
               ),
-              icon: const Icon(Icons.logout),
-              label: const Text('Log Out'),
             ),
-          ),
+          ],
           const SizedBox(height: 16),
         ],
       ),
@@ -198,6 +244,12 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
+  void _showComingSoon(String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$feature coming soon!')),
+    );
+  }
+
   void _showLanguageDialog() {
     showDialog(
       context: context,
@@ -212,17 +264,11 @@ class _SettingsViewState extends State<SettingsView> {
                 value: 'English',
                 groupValue: _selectedLanguage,
                 onChanged: (value) {
-                  setState(() {
-                    _selectedLanguage = value!;
-                  });
-                  Navigator.pop(context);
+                  _selectLanguage(value!);
                 },
               ),
               onTap: () {
-                setState(() {
-                  _selectedLanguage = 'English';
-                });
-                Navigator.pop(context);
+                _selectLanguage('English');
               },
             ),
             ListTile(
@@ -231,17 +277,11 @@ class _SettingsViewState extends State<SettingsView> {
                 value: 'Spanish',
                 groupValue: _selectedLanguage,
                 onChanged: (value) {
-                  setState(() {
-                    _selectedLanguage = value!;
-                  });
-                  Navigator.pop(context);
+                  _selectLanguage(value!);
                 },
               ),
               onTap: () {
-                setState(() {
-                  _selectedLanguage = 'Spanish';
-                });
-                Navigator.pop(context);
+                _selectLanguage('Spanish');
               },
             ),
             ListTile(
@@ -250,17 +290,11 @@ class _SettingsViewState extends State<SettingsView> {
                 value: 'French',
                 groupValue: _selectedLanguage,
                 onChanged: (value) {
-                  setState(() {
-                    _selectedLanguage = value!;
-                  });
-                  Navigator.pop(context);
+                  _selectLanguage(value!);
                 },
               ),
               onTap: () {
-                setState(() {
-                  _selectedLanguage = 'French';
-                });
-                Navigator.pop(context);
+                _selectLanguage('French');
               },
             ),
           ],
@@ -269,10 +303,226 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
+  Future<void> _selectLanguage(String language) async {
+    setState(() {
+      _selectedLanguage = language;
+    });
+    await SettingsService.setLanguage(language);
+    if (mounted) {
+      Navigator.pop(context);
+    }
+  }
+
+  void _showChangePasswordDialog() {
+    final currentPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Change Password'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: currentPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Current Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: newPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'New Password',
+                  border: OutlineInputBorder(),
+                  hintText: 'Minimum 6 characters',
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm New Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              final currentPassword = currentPasswordController.text;
+              final newPassword = newPasswordController.text;
+              final confirmPassword = confirmPasswordController.text;
+
+              // Validate inputs
+              if (currentPassword.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter your current password'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              if (newPassword.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter a new password'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              if (newPassword.length < 6) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Password must be at least 6 characters'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              if (newPassword != confirmPassword) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Passwords do not match'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              // Show loading indicator
+              Navigator.pop(context);
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+
+              // Call API to change password
+              final result = await AuthService.changePassword(
+                currentPassword: currentPassword,
+                newPassword: newPassword,
+              );
+
+              // Hide loading indicator
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+
+              // Show result
+              if (context.mounted) {
+                if (result['success']) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Password changed successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(result['error'] ?? 'Failed to change password'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Change'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text(
+          'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              // Show loading indicator
+              Navigator.pop(context);
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+
+              // Call API to delete account
+              final result = await AuthService.deleteAccount();
+
+              // Hide loading indicator
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+
+              // Show result
+              if (context.mounted) {
+                if (result['success']) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Account deleted successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                  // Force rebuild to show login screen
+                  setState(() {});
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(result['error'] ?? 'Failed to delete account'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showAboutDialog() {
     showAboutDialog(
       context: context,
-      applicationName: 'Book Store',
+      applicationName: 'Bookify',
       applicationVersion: '1.0.0',
       applicationIcon: const Icon(Icons.book, size: 48),
       children: [
@@ -293,11 +543,16 @@ class _SettingsViewState extends State<SettingsView> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Logged out successfully')),
-              );
+            onPressed: () async {
+              await AuthService.logout();
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Logged out successfully')),
+                );
+              }
+              // Force rebuild to show login screen
+              setState(() {});
             },
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red,

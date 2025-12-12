@@ -3,37 +3,56 @@ import 'book.dart';
 class Collection {
   final String id;
   final String name;
-  final String? imageURL;
+  final String imageURL;
   final List<Book> books;
-  final String? userID;
-  
+  final String userID;
+
   Collection({
     required this.id,
     required this.name,
-    this.imageURL,
-    this.userID,
+    required this.imageURL,
+    required this.userID,
     this.books = const [],
   });
-  
+
   factory Collection.fromJson(Map<String, dynamic> json) {
     return Collection(
-      id: json['id'] as String,
+      id: json['cID'] as String,
       name: json['name'] as String,
-      imageURL: json['image'] as String?,
-      userID: json['userID'] as String?,
+      imageURL: json['image'] as String? ?? '',
+      userID: json['uID'] as String,
       books: (json['books'] as List<dynamic>?)
-          ?.map((bookJson) => Book.fromJson(bookJson as Map<String, dynamic>))
-          .toList() ?? [],
+              ?.map((bookJson) =>
+                  Book.fromBackendJson(bookJson as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'cID': id,
       'name': name,
       'image': imageURL,
-      'userID': userID,
-      'books': books.map((book) => book.toJson()).toList(),
+      'uID': userID,
+      'books': books.map((book) => book.toBackendJson()).toList(),
+    };
+  }
+}
+
+class CollectionCreate {
+  final String name;
+  final String image;
+
+  CollectionCreate({
+    required this.name,
+    this.image = '',
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'image': image,
     };
   }
 }

@@ -1,92 +1,173 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'app_dimensions.dart';
 
-/// Reusable text styles for the application
+/// Centralized text styles for the application
+/// Terminal/cyberpunk aesthetic with neon green styling
 class AppTextStyles {
-  // Private constructor to prevent instantiation
-  AppTextStyles._();
+  AppTextStyles._(); // Private constructor to prevent instantiation
 
-  // Headers
-  static const TextStyle h1 = TextStyle(
-    fontSize: 28,
+  // Base text style
+  static const TextStyle _baseStyle = TextStyle(
+    fontFamily: 'Courier New',
+    color: AppColors.textPrimary,
+  );
+
+  // Display Styles (Largest)
+  static TextStyle displayLarge = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontMassive,
     fontWeight: FontWeight.bold,
-    color: AppColors.primaryGreen,
-    letterSpacing: 1.2,
+    letterSpacing: AppDimensions.letterSpacingExtraLoose,
   );
 
-  static const TextStyle h2 = TextStyle(
-    fontSize: 24,
+  static TextStyle displayMedium = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontHuge,
     fontWeight: FontWeight.bold,
-    color: AppColors.primaryGreen,
-    letterSpacing: 1.5,
+    letterSpacing: AppDimensions.letterSpacingLoose,
   );
 
-  static const TextStyle h3 = TextStyle(
-    fontSize: 20,
+  static TextStyle displaySmall = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontXxxl,
     fontWeight: FontWeight.bold,
-    color: AppColors.primaryGreen,
-    letterSpacing: 1.5,
+    letterSpacing: AppDimensions.letterSpacingRelaxed,
   );
 
-  // Body text
-  static const TextStyle bodyLarge = TextStyle(
-    fontSize: 18,
-    color: AppColors.primaryCyan,
-    letterSpacing: 1.0,
-  );
-
-  static const TextStyle bodyMedium = TextStyle(
-    fontSize: 16,
-    height: 1.5,
-    color: AppColors.primaryGreen,
-  );
-
-  static const TextStyle bodySmall = TextStyle(
-    fontSize: 16,
-    color: AppColors.primaryGreen,
-    letterSpacing: 1.0,
-  );
-
-  // Card text
-  static const TextStyle cardTitle = TextStyle(
+  // Headline Styles
+  static TextStyle headlineLarge = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontXxl,
     fontWeight: FontWeight.bold,
-    fontSize: 11,
+    letterSpacing: AppDimensions.letterSpacingRelaxed,
   );
 
-  static TextStyle cardSubtitle = TextStyle(
-    fontSize: 9,
-    color: AppColors.grey(600),
-  );
-
-  // Special styles
-  static const TextStyle appBarTitle = TextStyle(
+  static TextStyle headlineMedium = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontXl,
     fontWeight: FontWeight.bold,
-    letterSpacing: 2,
+    letterSpacing: AppDimensions.letterSpacingNormal,
   );
 
-  static TextStyle hintText = TextStyle(
-    color: AppColors.primaryGreenLight(0.4),
-    fontFamily: 'monospace',
+  static TextStyle headlineSmall = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontL,
+    fontWeight: FontWeight.bold,
+    letterSpacing: AppDimensions.letterSpacingNormal,
   );
 
-  static const TextStyle chipText = TextStyle(
-    color: AppColors.primaryCyan,
-    fontSize: 12,
-    letterSpacing: 1.0,
+  // Title Styles
+  static TextStyle titleLarge = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontL,
+    fontWeight: FontWeight.w600,
+    letterSpacing: AppDimensions.letterSpacingNormal,
   );
 
-  // Utility methods for text with prefix
-  static TextStyle withPrefix({
-    double fontSize = 18,
-    Color color = AppColors.primaryCyan,
-    double letterSpacing = 1.0,
-  }) {
-    return TextStyle(
-      fontSize: fontSize,
-      color: color,
-      letterSpacing: letterSpacing,
-    );
-  }
+  static TextStyle titleMedium = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontM,
+    fontWeight: FontWeight.w600,
+    letterSpacing: AppDimensions.letterSpacingNormal,
+  );
 
-  static String addPrefix(String text) => '> $text';
+  static TextStyle titleSmall = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontS,
+    fontWeight: FontWeight.w600,
+    letterSpacing: AppDimensions.letterSpacingTight,
+  );
+
+  // Body Styles
+  static TextStyle bodyLarge = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontL,
+    fontWeight: FontWeight.normal,
+    letterSpacing: AppDimensions.letterSpacingNormal,
+  );
+
+  static TextStyle bodyMedium = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontM,
+    fontWeight: FontWeight.normal,
+    letterSpacing: AppDimensions.letterSpacingNormal,
+  );
+
+  static TextStyle bodySmall = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontS,
+    fontWeight: FontWeight.normal,
+    letterSpacing: AppDimensions.letterSpacingTight,
+  );
+
+  // Label Styles (Small text for UI elements)
+  static TextStyle labelLarge = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontM,
+    fontWeight: FontWeight.w500,
+    letterSpacing: AppDimensions.letterSpacingNormal,
+  );
+
+  static TextStyle labelMedium = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontS,
+    fontWeight: FontWeight.w500,
+    letterSpacing: AppDimensions.letterSpacingNormal,
+  );
+
+  static TextStyle labelSmall = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontXs,
+    fontWeight: FontWeight.w500,
+    letterSpacing: AppDimensions.letterSpacingTight,
+  );
+
+  // Special Styles
+  static TextStyle caption = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontS,
+    color: AppColors.textSecondary,
+    letterSpacing: AppDimensions.letterSpacingTight,
+  );
+
+  static TextStyle overline = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontXs,
+    fontWeight: FontWeight.w600,
+    letterSpacing: AppDimensions.letterSpacingLoose,
+  );
+
+  static TextStyle button = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontM,
+    fontWeight: FontWeight.w600,
+    letterSpacing: AppDimensions.letterSpacingRelaxed,
+  );
+
+  // Custom App-Specific Styles
+  static TextStyle terminalHeader = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontXxxl,
+    fontWeight: FontWeight.bold,
+    letterSpacing: AppDimensions.letterSpacingExtraLoose,
+    color: AppColors.primary,
+  );
+
+  static TextStyle bookTitle = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontL,
+    fontWeight: FontWeight.bold,
+    letterSpacing: AppDimensions.letterSpacingNormal,
+    color: AppColors.textPrimary,
+  );
+
+  static TextStyle bookAuthor = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontM,
+    fontWeight: FontWeight.normal,
+    letterSpacing: AppDimensions.letterSpacingNormal,
+    color: AppColors.textSecondary,
+  );
+
+  static TextStyle price = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontXl,
+    fontWeight: FontWeight.bold,
+    letterSpacing: AppDimensions.letterSpacingRelaxed,
+    color: AppColors.secondary,
+  );
+
+  static TextStyle error = _baseStyle.copyWith(
+    fontSize: AppDimensions.fontS,
+    color: AppColors.error,
+    letterSpacing: AppDimensions.letterSpacingNormal,
+  );
+}
+
+/// Extension on TextStyle for convenient color modifications
+extension TextStyleExtensions on TextStyle {
+  TextStyle withPrimaryColor() => copyWith(color: AppColors.primary);
+  TextStyle withSecondaryColor() => copyWith(color: AppColors.secondary);
+  TextStyle withErrorColor() => copyWith(color: AppColors.error);
+  TextStyle withTextSecondaryColor() => copyWith(color: AppColors.textSecondary);
+  TextStyle withCustomColor(Color color) => copyWith(color: color);
 }

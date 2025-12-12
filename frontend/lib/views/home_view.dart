@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import '../models/book.dart';
 import '../services/book_api_service.dart';
+import '../services/auth_service.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_dimensions.dart';
+import '../theme/app_text_styles.dart';
 import '../widgets/book/book_card.dart';
+import '../widgets/add_to_collection_dialog.dart';
 import 'book_detail_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -135,11 +140,10 @@ class _HomeViewState extends State<HomeView> {
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
+              title: Text(
                 'BOOK STORE',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
+                style: AppTextStyles.headlineMedium.copyWith(
+                  letterSpacing: AppDimensions.letterSpacingExtraLoose,
                 ),
               ),
               background: Container(
@@ -148,44 +152,43 @@ class _HomeViewState extends State<HomeView> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0xFF010409),
-                      const Color(0xFF0D1117),
-                      const Color(0xFF00FF41).withValues(alpha: 0.1),
+                      AppColors.background,
+                      AppColors.surface,
+                      AppColors.primaryWithOpacity(0.1),
                     ],
                   ),
                 ),
                 child: Center(
                   child: Icon(
                     Icons.terminal,
-                    size: 80,
-                    color: const Color(0xFF00FF41).withValues(alpha: 0.3),
+                    size: AppDimensions.iconXxxl,
+                    color: AppColors.primaryWithOpacity(0.3),
                   ),
                 ),
               ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16.0),
+            padding: AppDimensions.paddingL,
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 TextField(
                   controller: _searchController,
-                  style: const TextStyle(color: Color(0xFF00FF41)),
+                  style: AppTextStyles.bodyMedium,
                   decoration: InputDecoration(
                     hintText: '> search_query...',
-                    hintStyle: TextStyle(
-                      color: const Color(0xFF00FF41).withValues(alpha: 0.4),
-                      fontFamily: 'monospace',
+                    hintStyle: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.primaryWithOpacity(0.4),
                     ),
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.search,
-                      color: Color(0xFF00FF41),
+                      color: AppColors.primary,
                     ),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.close,
-                              color: Color(0xFFFF0055),
+                              color: AppColors.error,
                             ),
                             onPressed: () {
                               _searchController.clear();
@@ -197,39 +200,34 @@ class _HomeViewState extends State<HomeView> {
                   onSubmitted: _onSearchSubmitted,
                   textInputAction: TextInputAction.search,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: AppDimensions.spacingL),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       _searchQuery == 'bestseller' ? '> FEATURED_BOOKS' : '> SEARCH_RESULTS',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF00FF41),
-                        letterSpacing: 1.5,
-                      ),
+                      style: AppTextStyles.terminalHeader,
                     ),
                     if (!_isLoading)
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.refresh,
-                          color: Color(0xFF00D9FF),
+                          color: AppColors.secondary,
                         ),
                         onPressed: _loadBooks,
                         tooltip: 'Refresh',
                       ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: AppDimensions.spacingL),
               ]),
             ),
           ),
           if (_isLoading)
-            const SliverFillRemaining(
+            SliverFillRemaining(
               child: Center(
                 child: CircularProgressIndicator(
-                  color: Color(0xFF00FF41),
+                  color: AppColors.primary,
                 ),
               ),
             )
@@ -239,56 +237,47 @@ class _HomeViewState extends State<HomeView> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
-                      size: 60,
-                      color: Color(0xFFFF0055),
+                      size: AppDimensions.iconXxxl,
+                      color: AppColors.error,
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: AppDimensions.spacingL),
                     Text(
                       _errorMessage!,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF00FF41),
-                      ),
+                      style: AppTextStyles.bodyLarge,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: AppDimensions.spacingL),
                     ElevatedButton.icon(
                       onPressed: _loadBooks,
                       icon: const Icon(Icons.refresh),
                       label: const Text('RETRY'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0D1117),
-                        foregroundColor: const Color(0xFF00FF41),
-                      ),
                     ),
                   ],
                 ),
               ),
             )
           else if (_featuredBooks.isEmpty)
-            const SliverFillRemaining(
+            SliverFillRemaining(
               child: Center(
                 child: Text(
                   '> NO_BOOKS_FOUND',
-                  style: TextStyle(
-                    color: Color(0xFF00FF41),
-                    fontSize: 18,
-                    letterSpacing: 1.5,
+                  style: AppTextStyles.headlineSmall.copyWith(
+                    letterSpacing: AppDimensions.letterSpacingLoose,
                   ),
                 ),
               ),
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: AppDimensions.paddingHorizontalL,
               sliver: SliverGrid(
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 150,
                   childAspectRatio: 0.6,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                  crossAxisSpacing: AppDimensions.spacingM,
+                  mainAxisSpacing: AppDimensions.spacingM,
                 ),
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -300,26 +289,25 @@ class _HomeViewState extends State<HomeView> {
               ),
             ),
           if (_isLoadingMore)
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: AppDimensions.paddingL,
                 child: Center(
                   child: CircularProgressIndicator(
-                    color: Color(0xFF00D9FF),
+                    color: AppColors.secondary,
                   ),
                 ),
               ),
             ),
           if (!_isLoading && !_hasMore && _featuredBooks.isNotEmpty)
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: AppDimensions.paddingL,
                 child: Center(
                   child: Text(
                     '> END_OF_DATA',
-                    style: TextStyle(
-                      color: Color(0xFF00FF41),
-                      letterSpacing: 1.5,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      letterSpacing: AppDimensions.letterSpacingLoose,
                     ),
                   ),
                 ),
@@ -344,15 +332,25 @@ class _HomeViewState extends State<HomeView> {
       },
       onAddPressed: () {
         _logger.i('Add button pressed for: ${book.title}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Added "${book.title}" to collection'),
-            duration: const Duration(seconds: 2),
-            backgroundColor: const Color(0xFF00FF41),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _showAddToCollectionDialog(book);
       },
+    );
+  }
+
+  void _showAddToCollectionDialog(Book book) {
+    if (!AuthService.isLoggedIn()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please log in to add books to collections'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AddToCollectionDialog(book: book),
     );
   }
 }
