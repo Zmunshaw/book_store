@@ -58,11 +58,15 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      if (!_isLoadingMore && _hasMore) {
-        _loadMoreBooks();
-      }
+    if (!_scrollController.hasClients) return;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    final delta = maxScroll - currentScroll;
+
+    // Load more when within 400 pixels of bottom
+    if (delta < 400 && !_isLoadingMore && _hasMore) {
+      _loadMoreBooks();
     }
   }
 
@@ -139,31 +143,55 @@ class _HomeViewState extends State<HomeView> {
             expandedHeight: 200.0,
             floating: false,
             pinned: true,
+            backgroundColor: AppColors.primary,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'BOOK STORE',
+                'The Book Nook',
                 style: AppTextStyles.headlineMedium.copyWith(
-                  letterSpacing: AppDimensions.letterSpacingExtraLoose,
+                  color: AppColors.textOnPrimary,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                     colors: [
-                      AppColors.background,
-                      AppColors.surface,
-                      AppColors.primaryWithOpacity(0.1),
+                      AppColors.primaryDark,
+                      AppColors.primary,
+                      AppColors.primaryLight,
                     ],
                   ),
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.terminal,
-                    size: AppDimensions.iconXxxl,
-                    color: AppColors.primaryWithOpacity(0.3),
-                  ),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Opacity(
+                        opacity: 0.1,
+                        child: Icon(
+                          Icons.auto_stories_outlined,
+                          size: 150,
+                          color: AppColors.textOnPrimary,
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 40),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.local_library,
+                              size: 48,
+                              color: AppColors.textOnPrimary.withValues(alpha: 0.9),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -172,54 +200,86 @@ class _HomeViewState extends State<HomeView> {
             padding: AppDimensions.paddingL,
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                TextField(
-                  controller: _searchController,
-                  style: AppTextStyles.bodyMedium,
-                  decoration: InputDecoration(
-                    hintText: '> search_query...',
-                    hintStyle: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.primaryWithOpacity(0.4),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: AppColors.primary,
-                    ),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(
-                              Icons.close,
-                              color: AppColors.error,
-                            ),
-                            onPressed: () {
-                              _searchController.clear();
-                              _loadBooks(query: 'bestseller');
-                            },
-                          )
-                        : null,
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  onSubmitted: _onSearchSubmitted,
-                  textInputAction: TextInputAction.search,
+                  child: TextField(
+                    controller: _searchController,
+                    style: AppTextStyles.bodyMedium,
+                    decoration: InputDecoration(
+                      hintText: 'Search for books...',
+                      hintStyle: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textHint,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: AppColors.primary,
+                      ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.close,
+                                color: AppColors.textSecondary,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                _loadBooks(query: 'bestseller');
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: AppDimensions.spacingM,
+                        vertical: AppDimensions.spacingM,
+                      ),
+                    ),
+                    onSubmitted: _onSearchSubmitted,
+                    textInputAction: TextInputAction.search,
+                  ),
                 ),
-                SizedBox(height: AppDimensions.spacingL),
+                SizedBox(height: AppDimensions.spacingL + 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      _searchQuery == 'bestseller' ? '> FEATURED_BOOKS' : '> SEARCH_RESULTS',
-                      style: AppTextStyles.terminalHeader,
+                    Row(
+                      children: [
+                        Icon(
+                          _searchQuery == 'bestseller' ? Icons.star : Icons.search,
+                          color: AppColors.secondary,
+                          size: 20,
+                        ),
+                        SizedBox(width: AppDimensions.spacingXs),
+                        Text(
+                          _searchQuery == 'bestseller' ? 'Featured Books' : 'Search Results',
+                          style: AppTextStyles.titleLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
                     ),
                     if (!_isLoading)
                       IconButton(
                         icon: Icon(
                           Icons.refresh,
-                          color: AppColors.secondary,
+                          color: AppColors.primary,
                         ),
                         onPressed: _loadBooks,
                         tooltip: 'Refresh',
                       ),
                   ],
                 ),
-                SizedBox(height: AppDimensions.spacingL),
+                SizedBox(height: AppDimensions.spacingM),
               ]),
             ),
           ),
@@ -261,11 +321,22 @@ class _HomeViewState extends State<HomeView> {
           else if (_featuredBooks.isEmpty)
             SliverFillRemaining(
               child: Center(
-                child: Text(
-                  '> NO_BOOKS_FOUND',
-                  style: AppTextStyles.headlineSmall.copyWith(
-                    letterSpacing: AppDimensions.letterSpacingLoose,
-                  ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.menu_book_outlined,
+                      size: 80,
+                      color: AppColors.textHint,
+                    ),
+                    SizedBox(height: AppDimensions.spacingL),
+                    Text(
+                      'No Books Found',
+                      style: AppTextStyles.headlineSmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
@@ -285,6 +356,9 @@ class _HomeViewState extends State<HomeView> {
                     return _buildBookCard(book);
                   },
                   childCount: _featuredBooks.length,
+                  addAutomaticKeepAlives: true,
+                  addRepaintBoundaries: true,
+                  addSemanticIndexes: false,
                 ),
               ),
             ),
@@ -304,11 +378,30 @@ class _HomeViewState extends State<HomeView> {
               child: Padding(
                 padding: AppDimensions.paddingL,
                 child: Center(
-                  child: Text(
-                    '> END_OF_DATA',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      letterSpacing: AppDimensions.letterSpacingLoose,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 1,
+                        color: AppColors.border,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: AppDimensions.spacingM),
+                        child: Text(
+                          'End of Catalog',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 60,
+                        height: 1,
+                        color: AppColors.border,
+                      ),
+                    ],
                   ),
                 ),
               ),

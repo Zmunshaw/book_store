@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimensions.dart';
 import '../../utils/image_utils.dart';
@@ -24,29 +25,31 @@ class BookCoverImage extends StatelessWidget {
 
     final absoluteUrl = getAbsoluteImageUrl(coverImageUrl);
 
-    return Image.network(
-      absoluteUrl,
+    return CachedNetworkImage(
+      imageUrl: absoluteUrl,
       height: height,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        logger?.w('Failed to load cover image: $error');
-        return _buildPlaceholder();
-      },
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) {
-          logger?.d('Cover image loaded successfully');
-          return child;
-        }
-        return Container(
-          height: height,
-          width: AppDimensions.imageWidthL,
-          color: AppColors.surface,
-          child: Center(
+      fadeInDuration: const Duration(milliseconds: 300),
+      fadeOutDuration: const Duration(milliseconds: 100),
+      placeholderFadeInDuration: const Duration(milliseconds: 100),
+      placeholder: (context, url) => Container(
+        height: height,
+        width: AppDimensions.imageWidthL,
+        color: AppColors.surface,
+        child: Center(
+          child: SizedBox(
+            width: 30,
+            height: 30,
             child: CircularProgressIndicator(
               color: AppColors.primary,
+              strokeWidth: 2,
             ),
           ),
-        );
+        ),
+      ),
+      errorWidget: (context, url, error) {
+        logger?.w('Failed to load cover image: $error');
+        return _buildPlaceholder();
       },
     );
   }

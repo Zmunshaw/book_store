@@ -10,26 +10,39 @@ class AppDecorations {
   // Container decorations
   static BoxDecoration containerDark({double borderOpacity = 0.3}) {
     return BoxDecoration(
-      color: AppColors.backgroundMedium,
+      color: AppColors.surface,
       border: Border.all(
-        color: AppColors.primaryGreenLight(borderOpacity),
-        width: 2,
+        color: AppColors.primaryWithOpacity(borderOpacity),
+        width: 1,
       ),
+      borderRadius: BorderRadius.circular(AppSpacing.borderRadiusSM),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
     );
   }
 
   static BoxDecoration cardBackground = BoxDecoration(
-    color: AppColors.grey(200),
-    borderRadius: BorderRadius.vertical(
-      top: Radius.circular(AppSpacing.borderRadiusSM),
-    ),
+    color: AppColors.cardBackground,
+    borderRadius: BorderRadius.circular(AppSpacing.borderRadiusSM),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: 0.08),
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      ),
+    ],
   );
 
   // Chip/Tag decoration
   static BoxDecoration chip = BoxDecoration(
-    color: AppColors.backgroundMedium,
+    color: AppColors.surface,
     border: Border.all(
-      color: AppColors.primaryCyanLight(0.5),
+      color: AppColors.border,
       width: 1,
     ),
     borderRadius: AppSpacing.radiusSM,
@@ -37,13 +50,13 @@ class AppDecorations {
 
   // Button decoration
   static BoxDecoration addButton = BoxDecoration(
-    color: AppColors.primaryGreenLight(0.9),
+    color: AppColors.primary,
     shape: BoxShape.circle,
     boxShadow: [
       BoxShadow(
-        color: Colors.black.withOpacity(0.3),
-        blurRadius: 4,
-        offset: const Offset(0, 2),
+        color: AppColors.primary.withValues(alpha: 0.3),
+        blurRadius: 8,
+        offset: const Offset(0, 3),
       ),
     ],
   );
@@ -51,30 +64,29 @@ class AppDecorations {
   // Gradient backgrounds
   static BoxDecoration gradientBackground = BoxDecoration(
     gradient: LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
       colors: [
-        AppColors.backgroundDark,
-        AppColors.backgroundMedium,
-        AppColors.primaryGreenLight(0.1),
+        AppColors.background,
+        AppColors.surface,
       ],
     ),
   );
 
   // Input decoration
   static InputDecoration searchInputDecoration({
-    String hintText = '> search_query...',
+    String hintText = 'Search books...',
     Widget? suffixIcon,
   }) {
     return InputDecoration(
       hintText: hintText,
       hintStyle: TextStyle(
-        color: AppColors.primaryGreenLight(0.4),
-        fontFamily: 'monospace',
+        color: AppColors.textHint,
+        fontFamily: 'Georgia',
       ),
-      prefixIcon: const Icon(
+      prefixIcon: Icon(
         Icons.search,
-        color: AppColors.primaryGreen,
+        color: AppColors.primary,
       ),
       suffixIcon: suffixIcon,
     );
@@ -84,7 +96,7 @@ class AppDecorations {
   static Border bottomBorder(BuildContext context) {
     return Border(
       bottom: BorderSide(
-        color: AppColors.primaryGreen,
+        color: AppColors.primary,
         width: 2,
       ),
     );

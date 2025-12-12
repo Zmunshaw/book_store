@@ -156,7 +156,7 @@ void main() {
       final resultJson = book.toJson();
 
       expect(book.publishedDate, DateTime.parse('2020-03-15T10:30:00.000Z'));
-      expect(resultJson['publishedDate'], book.publishedDate.toIso8601String());
+      expect(resultJson['publishedDate'], book.publishedDate?.toIso8601String());
     });
 
     test('Book handles multiple genres correctly', () {

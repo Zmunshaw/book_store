@@ -3,13 +3,13 @@ import 'app_colors.dart';
 import 'app_dimensions.dart';
 
 /// Centralized text styles for the application
-/// Terminal/cyberpunk aesthetic with neon green styling
+/// Classic bookstore aesthetic with serif typography
 class AppTextStyles {
   AppTextStyles._(); // Private constructor to prevent instantiation
 
-  // Base text style
+  // Base text style - Using serif fonts for classic bookstore feel
   static const TextStyle _baseStyle = TextStyle(
-    fontFamily: 'Courier New',
+    fontFamily: 'Georgia',
     color: AppColors.textPrimary,
   );
 

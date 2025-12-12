@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/collection.dart';
 import '../models/book.dart';
 import '../services/collection_service.dart';
 import '../utils/image_utils.dart';
+import '../theme/app_colors.dart';
 import 'book_detail_view.dart';
 
 class CollectionDetailView extends StatefulWidget {
@@ -63,8 +65,18 @@ class _CollectionDetailViewState extends State<CollectionDetailView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(_collection.name),
+        title: Text(
+          _collection.name,
+          style: TextStyle(
+            fontFamily: 'Georgia',
+            fontWeight: FontWeight.bold,
+            color: AppColors.textOnPrimary,
+          ),
+        ),
+        backgroundColor: AppColors.primary,
+        iconTheme: IconThemeData(color: AppColors.textOnPrimary),
       ),
       body: _collection.books.isEmpty
           ? _buildEmptyState()
@@ -83,16 +95,34 @@ class _CollectionDetailViewState extends State<CollectionDetailView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.book_outlined, size: 80, color: Colors.grey[400]),
+          Icon(
+            Icons.collections_bookmark_outlined,
+            size: 80,
+            color: AppColors.textHint,
+          ),
           const SizedBox(height: 16),
           Text(
-            'No books in this collection',
-            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            'Collection is Empty',
+            style: TextStyle(
+              fontSize: 20,
+              fontFamily: 'Georgia',
+              fontWeight: FontWeight.bold,
+              color: AppColors.textSecondary,
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Add books from the Home tab',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+          const SizedBox(height: 12),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              'Add books to this collection from the Home tab',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                fontFamily: 'Georgia',
+                fontStyle: FontStyle.italic,
+                color: AppColors.textHint,
+              ),
+            ),
           ),
         ],
       ),
@@ -102,6 +132,13 @@ class _CollectionDetailViewState extends State<CollectionDetailView> {
   Widget _buildBookCard(Book book) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.15),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.border, width: 0.5),
+      ),
+      color: AppColors.surface,
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -111,31 +148,62 @@ class _CollectionDetailViewState extends State<CollectionDetailView> {
             ),
           );
         },
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(14),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 60,
-                height: 90,
+                width: 70,
+                height: 105,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: Colors.grey[800],
+                  color: AppColors.cardBackground,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 6,
+                      offset: Offset(2, 3),
+                    ),
+                  ],
                 ),
                 child: book.coverImageUrl.isNotEmpty
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          getAbsoluteImageUrl(book.coverImageUrl),
+                        child: CachedNetworkImage(
+                          imageUrl: getAbsoluteImageUrl(book.coverImageUrl),
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.menu_book,
-                                size: 30, color: Colors.grey[400]);
+                          fadeInDuration: const Duration(milliseconds: 200),
+                          fadeOutDuration: const Duration(milliseconds: 100),
+                          placeholderFadeInDuration: const Duration(milliseconds: 100),
+                          placeholder: (context, url) => Container(
+                            color: AppColors.cardBackground,
+                            child: Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) {
+                            return Icon(
+                              Icons.auto_stories,
+                              size: 35,
+                              color: AppColors.primary.withValues(alpha: 0.4),
+                            );
                           },
                         ),
                       )
-                    : Icon(Icons.menu_book, size: 30, color: Colors.grey[400]),
+                    : Icon(
+                        Icons.auto_stories,
+                        size: 35,
+                        color: AppColors.primary.withValues(alpha: 0.4),
+                      ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -144,54 +212,101 @@ class _CollectionDetailViewState extends State<CollectionDetailView> {
                   children: [
                     Text(
                       book.title,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: 17,
                         fontWeight: FontWeight.bold,
+                        fontFamily: 'Georgia',
+                        color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       '${book.authorFirst} ${book.authorLast}',
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[400],
+                        fontSize: 15,
+                        fontFamily: 'Georgia',
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                     if (book.publishedDate != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        'Published: ${book.publishedDate!.year}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 12,
+                            color: AppColors.textHint,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${book.publishedDate!.year}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontFamily: 'Georgia',
+                              color: AppColors.textHint,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ],
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline),
+                icon: Icon(
+                  Icons.delete_outline,
+                  color: AppColors.error,
+                ),
                 onPressed: _isLoading
                     ? null
                     : () {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Remove Book'),
+                            backgroundColor: AppColors.surface,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: Text(
+                              'Remove Book',
+                              style: TextStyle(
+                                fontFamily: 'Georgia',
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             content: Text(
-                                'Remove "${book.title}" from this collection?'),
+                              'Remove "${book.title}" from this collection?',
+                              style: TextStyle(
+                                fontFamily: 'Georgia',
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.textSecondary,
+                                ),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(fontFamily: 'Georgia'),
+                                ),
                               ),
                               FilledButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                   _removeBook(book);
                                 },
-                                child: const Text('Remove'),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: AppColors.error,
+                                  foregroundColor: AppColors.textOnPrimary,
+                                ),
+                                child: Text(
+                                  'Remove',
+                                  style: TextStyle(fontFamily: 'Georgia'),
+                                ),
                               ),
                             ],
                           ),

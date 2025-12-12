@@ -2,12 +2,14 @@ import 'package:book_store/models/collection.dart';
 import 'package:book_store/models/book.dart';
 import 'package:book_store/services/api_service.dart';
 import 'package:book_store/services/auth_service.dart';
+import 'package:book_store/services/cache_service.dart';
 import 'package:logger/logger.dart';
 
 class CollectionService {
   static final Logger _logger = Logger();
+  static final CacheService _cacheService = CacheService();
 
-  static Future<Map<String, dynamic>> getUserCollections() async {
+  static Future<Map<String, dynamic>> getUserCollections({bool forceRefresh = false}) async {
     try {
       if (!AuthService.isLoggedIn()) {
         return {
@@ -16,24 +18,63 @@ class CollectionService {
         };
       }
 
+      final userId = AuthService.accessToken ?? '';
+
+      // Try to get cached collections first
+      if (!forceRefresh) {
+        final cachedData = await _cacheService.getCollections(userId);
+        if (cachedData != null) {
+          final collections = cachedData
+              .map((json) => Collection.fromJson(json))
+              .toList();
+          _logger.i('Returning ${collections.length} collections from cache');
+          return {
+            'success': true,
+            'collections': collections,
+            'fromCache': true,
+          };
+        }
+      }
+
       final response = await ApiService.get(
         endpoint: '/collections/',
         token: AuthService.accessToken,
       );
 
       if (response['success']) {
-        final collections = (response['data'] as List)
+        final collectionsData = response['data'] as List;
+        final collections = collectionsData
             .map((json) => Collection.fromJson(json))
             .toList();
 
-        _logger.i('Fetched ${collections.length} collections');
+        _logger.i('Fetched ${collections.length} collections from API');
+
+        // Cache the raw JSON data
+        await _cacheService.cacheCollections(userId, collectionsData);
 
         return {
           'success': true,
           'collections': collections,
+          'fromCache': false,
         };
       } else {
         _logger.w('Failed to fetch collections: ${response['error']}');
+
+        // Try to return cached data if API fails
+        final cachedData = await _cacheService.getCollections(userId);
+        if (cachedData != null) {
+          final collections = cachedData
+              .map((json) => Collection.fromJson(json))
+              .toList();
+          _logger.w('API failed, returning ${collections.length} stale cached collections');
+          return {
+            'success': true,
+            'collections': collections,
+            'fromCache': true,
+            'warning': 'Using cached data due to API error',
+          };
+        }
+
         return {
           'success': false,
           'error': response['error'],
@@ -41,10 +82,37 @@ class CollectionService {
       }
     } catch (e) {
       _logger.e('Error fetching collections: $e');
+
+      // Try to return cached data on error
+      if (AuthService.isLoggedIn()) {
+        final userId = AuthService.accessToken ?? '';
+        final cachedData = await _cacheService.getCollections(userId);
+        if (cachedData != null) {
+          final collections = cachedData
+              .map((json) => Collection.fromJson(json))
+              .toList();
+          _logger.w('Exception occurred, returning ${collections.length} cached collections');
+          return {
+            'success': true,
+            'collections': collections,
+            'fromCache': true,
+            'warning': 'Using cached data due to error',
+          };
+        }
+      }
+
       return {
         'success': false,
         'error': 'An unexpected error occurred',
       };
+    }
+  }
+
+  static Future<void> _invalidateCollectionsCache() async {
+    if (AuthService.isLoggedIn()) {
+      final userId = AuthService.accessToken ?? '';
+      await _cacheService.invalidateCollectionsCache(userId);
+      _logger.d('Invalidated collections cache');
     }
   }
 
@@ -75,6 +143,9 @@ class CollectionService {
         final collection = Collection.fromJson(response['data']);
 
         _logger.i('Created collection: ${collection.name}');
+
+        // Invalidate cache after mutation
+        await _invalidateCollectionsCache();
 
         return {
           'success': true,
@@ -119,6 +190,9 @@ class CollectionService {
 
         _logger.i('Added book "${book.title}" to collection');
 
+        // Invalidate cache after mutation
+        await _invalidateCollectionsCache();
+
         return {
           'success': true,
           'collection': collection,
@@ -159,6 +233,9 @@ class CollectionService {
       if (response['success']) {
         _logger.i('Removed book from collection');
 
+        // Invalidate cache after mutation
+        await _invalidateCollectionsCache();
+
         return {
           'success': true,
           'message': 'Book removed successfully',
@@ -197,6 +274,9 @@ class CollectionService {
 
       if (response['success']) {
         _logger.i('Deleted collection');
+
+        // Invalidate cache after mutation
+        await _invalidateCollectionsCache();
 
         return {
           'success': true,

@@ -35,39 +35,39 @@ void main() {
       final collection = Collection(
         id: 'col123',
         name: 'My Favorites',
+        imageURL: '',
+        userID: 'user123',
       );
 
       expect(collection.books, isEmpty);
-      expect(collection.imageURL, isNull);
-      expect(collection.userID, isNull);
     });
 
     test('Collection.fromJson creates Collection from valid JSON with books', () {
       final json = {
-        'id': 'col123',
+        'cID': 'col123',
         'name': 'My Favorites',
         'image': 'https://example.com/collection.jpg',
-        'userID': 'user123',
+        'uID': 'user123',
         'books': [
           {
-            'bid': 'book1',
+            'bID': 'book1',
             'title': 'Book One',
             'synopsis': 'First book',
-            'date': '2020-01-01T00:00:00.000',
-            'authorf': 'John',
-            'authorl': 'Doe',
+            'date': 2020,
+            'authorF': 'John',
+            'authorL': 'Doe',
             'image': 'https://example.com/book1.jpg',
-            'genre': ['Fiction'],
+            'genre': 'Fiction',
           },
           {
-            'bid': 'book2',
+            'bID': 'book2',
             'title': 'Book Two',
             'synopsis': 'Second book',
-            'date': '2021-01-01T00:00:00.000',
-            'authorf': 'Jane',
-            'authorl': 'Smith',
+            'date': 2021,
+            'authorF': 'Jane',
+            'authorL': 'Smith',
             'image': 'https://example.com/book2.jpg',
-            'genre': ['Non-Fiction'],
+            'genre': 'Non-Fiction',
           },
         ],
       };
@@ -85,10 +85,10 @@ void main() {
 
     test('Collection.fromJson handles null books list', () {
       final json = {
-        'id': 'col123',
+        'cID': 'col123',
         'name': 'My Favorites',
         'image': 'https://example.com/collection.jpg',
-        'userID': 'user123',
+        'uID': 'user123',
       };
 
       final collection = Collection.fromJson(json);
@@ -96,25 +96,28 @@ void main() {
       expect(collection.books, isEmpty);
     });
 
-    test('Collection.fromJson handles null imageURL and userID', () {
+    test('Collection.fromJson handles missing imageURL', () {
       final json = {
-        'id': 'col123',
+        'cID': 'col123',
         'name': 'My Favorites',
+        'uID': 'user123',
       };
 
       final collection = Collection.fromJson(json);
 
       expect(collection.id, 'col123');
       expect(collection.name, 'My Favorites');
-      expect(collection.imageURL, isNull);
-      expect(collection.userID, isNull);
+      expect(collection.imageURL, '');
+      expect(collection.userID, 'user123');
       expect(collection.books, isEmpty);
     });
 
     test('Collection.fromJson handles empty books list', () {
       final json = {
-        'id': 'col123',
+        'cID': 'col123',
         'name': 'My Favorites',
+        'image': 'https://example.com/collection.jpg',
+        'uID': 'user123',
         'books': [],
       };
 
@@ -145,19 +148,21 @@ void main() {
 
       final json = collection.toJson();
 
-      expect(json['id'], 'col123');
+      expect(json['cID'], 'col123');
       expect(json['name'], 'My Favorites');
       expect(json['image'], 'https://example.com/collection.jpg');
-      expect(json['userID'], 'user123');
+      expect(json['uID'], 'user123');
       expect(json['books'], isList);
       expect((json['books'] as List).length, 1);
-      expect((json['books'] as List)[0]['id'], 'book1');
+      expect((json['books'] as List)[0]['bID'], 'book1');
     });
 
     test('Collection.toJson handles empty books list', () {
       final collection = Collection(
         id: 'col123',
         name: 'My Favorites',
+        imageURL: '',
+        userID: 'user123',
       );
 
       final json = collection.toJson();
@@ -165,34 +170,22 @@ void main() {
       expect(json['books'], isEmpty);
     });
 
-    test('Collection.toJson handles null imageURL and userID', () {
-      final collection = Collection(
-        id: 'col123',
-        name: 'My Favorites',
-      );
-
-      final json = collection.toJson();
-
-      expect(json['image'], isNull);
-      expect(json['userID'], isNull);
-    });
-
     test('Collection fromJson and toJson round trip with books', () {
       final originalJson = {
-        'id': 'col123',
+        'cID': 'col123',
         'name': 'My Favorites',
         'image': 'https://example.com/collection.jpg',
-        'userID': 'user123',
+        'uID': 'user123',
         'books': [
           {
-            'bid': 'book1',
+            'bID': 'book1',
             'title': 'Book One',
             'synopsis': 'First book',
-            'date': '2020-01-01T00:00:00.000',
-            'authorf': 'John',
-            'authorl': 'Doe',
+            'date': 2020,
+            'authorF': 'John',
+            'authorL': 'Doe',
             'image': 'https://example.com/book1.jpg',
-            'genre': ['Fiction'],
+            'genre': 'Fiction',
           },
         ],
       };
@@ -200,10 +193,10 @@ void main() {
       final collection = Collection.fromJson(originalJson);
       final resultJson = collection.toJson();
 
-      expect(resultJson['id'], originalJson['id']);
+      expect(resultJson['cID'], originalJson['cID']);
       expect(resultJson['name'], originalJson['name']);
       expect(resultJson['image'], originalJson['image']);
-      expect(resultJson['userID'], originalJson['userID']);
+      expect(resultJson['uID'], originalJson['uID']);
       expect((resultJson['books'] as List).length, 1);
     });
 
@@ -224,6 +217,8 @@ void main() {
       final collection = Collection(
         id: 'col123',
         name: 'Large Collection',
+        imageURL: '',
+        userID: 'user123',
         books: books,
       );
 

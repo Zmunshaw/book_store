@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/book.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_dimensions.dart';
@@ -20,9 +21,14 @@ class BookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: AppDimensions.elevationS,
+      elevation: 4,
+      shadowColor: Colors.black.withValues(alpha: 0.2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
         child: Stack(
           children: [
             Column(
@@ -31,53 +37,96 @@ class BookCard extends StatelessWidget {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: AppColors.cardBackground,
                       borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(AppDimensions.radiusXs),
+                        top: Radius.circular(12),
                       ),
                     ),
                     child: book.coverImageUrl.isNotEmpty
                         ? ClipRRect(
                             borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(AppDimensions.radiusXs),
+                              top: Radius.circular(12),
                             ),
-                            child: Image.network(
-                              getAbsoluteImageUrl(book.coverImageUrl),
+                            child: CachedNetworkImage(
+                              imageUrl: getAbsoluteImageUrl(book.coverImageUrl),
                               width: double.infinity,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Center(
+                              fadeInDuration: const Duration(milliseconds: 300),
+                              fadeOutDuration: const Duration(milliseconds: 100),
+                              placeholderFadeInDuration: const Duration(milliseconds: 100),
+                              memCacheWidth: 300,
+                              maxWidthDiskCache: 400,
+                              placeholder: (context, url) => Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      AppColors.cardBackground,
+                                      AppColors.background,
+                                    ],
+                                  ),
+                                ),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.primary,
+                                      strokeWidth: 2.5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      AppColors.primaryLight.withValues(alpha: 0.1),
+                                      AppColors.secondary.withValues(alpha: 0.05),
+                                    ],
+                                  ),
+                                ),
+                                child: Center(
                                   child: Icon(
-                                    Icons.menu_book,
+                                    Icons.auto_stories,
                                     size: AppDimensions.iconXxxl,
-                                    color: AppColors.primaryWithOpacity(0.4),
+                                    color: AppColors.primary.withValues(alpha: 0.3),
                                   ),
-                                );
-                              },
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    color: AppColors.primary,
-                                    value: loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress.cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
-                                  ),
-                                );
-                              },
+                                ),
+                              ),
                             ),
                           )
-                        : Center(
-                            child: Icon(
-                              Icons.menu_book,
-                              size: AppDimensions.iconXxxl,
-                              color: AppColors.primaryWithOpacity(0.4),
+                        : Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  AppColors.primaryLight.withValues(alpha: 0.1),
+                                  AppColors.secondary.withValues(alpha: 0.05),
+                                ],
+                              ),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.auto_stories,
+                                size: AppDimensions.iconXxxl,
+                                color: AppColors.primary.withValues(alpha: 0.3),
+                              ),
                             ),
                           ),
                   ),
                 ),
-                Padding(
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(12),
+                    ),
+                  ),
                   padding: EdgeInsets.all(AppDimensions.spacingXs + 2),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,6 +135,7 @@ class BookCard extends StatelessWidget {
                         book.title,
                         style: AppTextStyles.labelMedium.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -95,6 +145,7 @@ class BookCard extends StatelessWidget {
                         '${book.authorFirst} ${book.authorLast}',
                         style: AppTextStyles.labelSmall.copyWith(
                           color: AppColors.textSecondary,
+                          fontStyle: FontStyle.italic,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -116,13 +167,13 @@ class BookCard extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.all(AppDimensions.spacingXs + 2),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryWithOpacity(0.9),
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.overlayLight,
-                            blurRadius: AppDimensions.elevationS,
-                            offset: Offset(0, AppDimensions.spacingXs - 2),
+                            color: AppColors.primary.withValues(alpha: 0.4),
+                            blurRadius: 8,
+                            offset: Offset(0, 3),
                           ),
                         ],
                       ),
