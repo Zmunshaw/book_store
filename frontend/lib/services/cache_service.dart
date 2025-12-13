@@ -12,13 +12,11 @@ class CacheService {
   Database? _database;
   final Logger _logger = Logger();
 
-  // For web platform, use in-memory storage as fallback
   final bool _isWebPlatform = kIsWeb;
 
-  // Cache duration constants (in minutes)
-  static const int searchCacheDuration = 30; // 30 minutes for search results
-  static const int collectionsCacheDuration = 60; // 1 hour for collections
-  static const int featuredBooksCacheDuration = 120; // 2 hours for featured books
+  static const int searchCacheDuration = 30;
+  static const int collectionsCacheDuration = 60;
+  static const int featuredBooksCacheDuration = 120;
 
   Future<Database?> get database async {
     if (_isWebPlatform) {
@@ -46,7 +44,6 @@ class CacheService {
   Future<void> _onCreate(Database db, int version) async {
     _logger.d('Creating cache tables');
 
-    // Table for caching API responses
     await db.execute('''
       CREATE TABLE cache_entries (
         key TEXT PRIMARY KEY,
@@ -56,7 +53,6 @@ class CacheService {
       )
     ''');
 
-    // Table for caching book search results
     await db.execute('''
       CREATE TABLE search_cache (
         query TEXT NOT NULL,
@@ -67,7 +63,6 @@ class CacheService {
       )
     ''');
 
-    // Table for caching collections
     await db.execute('''
       CREATE TABLE collections_cache (
         user_id TEXT NOT NULL,
@@ -78,7 +73,6 @@ class CacheService {
     ''');
   }
 
-  // Generic cache methods
   Future<void> set(String key, dynamic value, {int expirationMinutes = 60}) async {
     if (_isWebPlatform) {
       _logger.d('Web platform - caching disabled for key: $key');
@@ -167,7 +161,6 @@ class CacheService {
     }
   }
 
-  // Search cache methods
   Future<void> cacheSearchResults(String query, int page, List<dynamic> results) async {
     if (_isWebPlatform) return;
 
@@ -265,7 +258,6 @@ class CacheService {
     }
   }
 
-  // Collections cache methods
   Future<void> cacheCollections(String userId, List<dynamic> collections) async {
     if (_isWebPlatform) return;
 
@@ -348,7 +340,6 @@ class CacheService {
     }
   }
 
-  // Clear all cache
   Future<void> clearAllCache() async {
     if (_isWebPlatform) return;
 
@@ -365,7 +356,6 @@ class CacheService {
     }
   }
 
-  // Get cache statistics
   Future<Map<String, int>> getCacheStats() async {
     if (_isWebPlatform) {
       return {
@@ -402,7 +392,6 @@ class CacheService {
     }
   }
 
-  // Close database connection
   Future<void> close() async {
     if (_isWebPlatform) return;
 

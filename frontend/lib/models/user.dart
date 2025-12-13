@@ -29,7 +29,7 @@ class User {
       'uName': uName,
       'fName': fName,
       'lName': lName,
-      'dob': dob.toIso8601String().split('T')[0], // Format as YYYY-MM-DD
+      'dob': dob.toIso8601String().split('T')[0],
     };
   }
 }
@@ -53,7 +53,7 @@ class UserCreate {
     return {
       'fName': fName,
       'lName': lName,
-      'dob': dob.toIso8601String().split('T')[0], // Format as YYYY-MM-DD
+      'dob': dob.toIso8601String().split('T')[0],
       'uName': uName,
       'uPass': uPass,
     };

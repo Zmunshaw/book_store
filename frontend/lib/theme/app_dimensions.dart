@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Centralized dimension constants for the application
-/// Includes spacing, borders, elevations, and sizes
 class AppDimensions {
-  AppDimensions._(); // Private constructor to prevent instantiation
+  AppDimensions._();
 
-  // Spacing & Padding
   static const double spacingXs = 4.0;
   static const double spacingS = 8.0;
   static const double spacingM = 12.0;
@@ -14,7 +11,6 @@ class AppDimensions {
   static const double spacingXxl = 32.0;
   static const double spacingXxxl = 48.0;
 
-  // Border Radius
   static const double radiusXs = 4.0;
   static const double radiusS = 8.0;
   static const double radiusM = 12.0;
@@ -22,7 +18,6 @@ class AppDimensions {
   static const double radiusXl = 20.0;
   static const double radiusXxl = 24.0;
 
-  // Border Radius Objects
   static BorderRadius get borderRadiusXs =>
       BorderRadius.circular(radiusXs);
   static BorderRadius get borderRadiusS =>
@@ -36,7 +31,6 @@ class AppDimensions {
   static BorderRadius get borderRadiusXxl =>
       BorderRadius.circular(radiusXxl);
 
-  // Elevation
   static const double elevationNone = 0.0;
   static const double elevationXs = 2.0;
   static const double elevationS = 4.0;
@@ -44,7 +38,6 @@ class AppDimensions {
   static const double elevationL = 12.0;
   static const double elevationXl = 16.0;
 
-  // Icon Sizes
   static const double iconXs = 16.0;
   static const double iconS = 20.0;
   static const double iconM = 24.0;
@@ -54,7 +47,6 @@ class AppDimensions {
   static const double iconXxxl = 80.0;
   static const double iconHuge = 100.0;
 
-  // Font Sizes
   static const double fontXxs = 10.0;
   static const double fontXs = 11.0;
   static const double fontS = 12.0;
@@ -66,19 +58,16 @@ class AppDimensions {
   static const double fontHuge = 28.0;
   static const double fontMassive = 32.0;
 
-  // Letter Spacing
   static const double letterSpacingTight = 0.5;
   static const double letterSpacingNormal = 1.0;
   static const double letterSpacingRelaxed = 1.2;
   static const double letterSpacingLoose = 1.5;
   static const double letterSpacingExtraLoose = 2.0;
 
-  // Border Width
   static const double borderWidthThin = 1.0;
   static const double borderWidthMedium = 2.0;
   static const double borderWidthThick = 3.0;
 
-  // Common EdgeInsets
   static const EdgeInsets paddingXs = EdgeInsets.all(spacingXs);
   static const EdgeInsets paddingS = EdgeInsets.all(spacingS);
   static const EdgeInsets paddingM = EdgeInsets.all(spacingM);
@@ -96,13 +85,10 @@ class AppDimensions {
   static const EdgeInsets paddingVerticalL = EdgeInsets.symmetric(vertical: spacingL);
   static const EdgeInsets paddingVerticalXl = EdgeInsets.symmetric(vertical: spacingXl);
 
-  // App Bar Height
   static const double appBarHeight = kToolbarHeight;
 
-  // Bottom Navigation Height
   static const double bottomNavHeight = 60.0;
 
-  // Image Dimensions
   static const double imageWidthS = 80.0;
   static const double imageWidthM = 120.0;
   static const double imageWidthL = 200.0;

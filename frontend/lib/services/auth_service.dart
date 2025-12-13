@@ -11,12 +11,10 @@ class AuthService {
 
   static String? get accessToken => _accessToken;
 
-  /// Initialize AuthService and load saved token
   static Future<void> init() async {
     await _loadToken();
   }
 
-  /// Load access token from storage
   static Future<void> _loadToken() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -29,7 +27,6 @@ class AuthService {
     }
   }
 
-  /// Save access token to storage
   static Future<void> _saveToken(String token) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -40,7 +37,6 @@ class AuthService {
     }
   }
 
-  /// Clear access token from storage
   static Future<void> _clearToken() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -223,7 +219,7 @@ class AuthService {
 
       if (response['success']) {
         _logger.i('Account deleted successfully');
-        await logout(); // Clear the token after deletion
+        await logout();
         return {
           'success': true,
           'message': 'Account deleted successfully',

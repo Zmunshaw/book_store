@@ -19,7 +19,6 @@ class BookApiService {
   Future<List<Book>> searchBooks(String query, {int page = 1, bool forceRefresh = false}) async {
     _logger.i('Searching books: query="$query", page=$page, forceRefresh=$forceRefresh');
 
-    // Try to get cached results first
     if (!forceRefresh) {
       final cachedResults = await _cacheService.getSearchResults(query, page);
       if (cachedResults != null) {
@@ -42,7 +41,6 @@ class BookApiService {
 
         _logger.i('Successfully fetched ${results.length} books from API (total: $totalCount)');
 
-        // Cache the raw JSON results
         await _cacheService.cacheSearchResults(query, page, results);
 
         final books = results.map((json) => _parseBook(json)).toList();
@@ -56,7 +54,6 @@ class BookApiService {
     } catch (e, stackTrace) {
       _logger.e('Error fetching books', error: e, stackTrace: stackTrace);
 
-      // Try to return cached data if API fails
       final cachedResults = await _cacheService.getSearchResults(query, page);
       if (cachedResults != null) {
         _logger.w('API failed, returning stale cached data');

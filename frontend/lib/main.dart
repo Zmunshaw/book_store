@@ -7,7 +7,6 @@ import 'widgets/main_navigation.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize AuthService to load saved token
   await AuthService.init();
 
   runApp(const BookStoreApp());

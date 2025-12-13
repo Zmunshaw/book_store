@@ -20,7 +20,6 @@ class CollectionService {
 
       final userId = AuthService.accessToken ?? '';
 
-      // Try to get cached collections first
       if (!forceRefresh) {
         final cachedData = await _cacheService.getCollections(userId);
         if (cachedData != null) {
@@ -49,7 +48,6 @@ class CollectionService {
 
         _logger.i('Fetched ${collections.length} collections from API');
 
-        // Cache the raw JSON data
         await _cacheService.cacheCollections(userId, collectionsData);
 
         return {
@@ -60,7 +58,6 @@ class CollectionService {
       } else {
         _logger.w('Failed to fetch collections: ${response['error']}');
 
-        // Try to return cached data if API fails
         final cachedData = await _cacheService.getCollections(userId);
         if (cachedData != null) {
           final collections = cachedData
@@ -83,7 +80,6 @@ class CollectionService {
     } catch (e) {
       _logger.e('Error fetching collections: $e');
 
-      // Try to return cached data on error
       if (AuthService.isLoggedIn()) {
         final userId = AuthService.accessToken ?? '';
         final cachedData = await _cacheService.getCollections(userId);
@@ -144,7 +140,6 @@ class CollectionService {
 
         _logger.i('Created collection: ${collection.name}');
 
-        // Invalidate cache after mutation
         await _invalidateCollectionsCache();
 
         return {
@@ -190,7 +185,6 @@ class CollectionService {
 
         _logger.i('Added book "${book.title}" to collection');
 
-        // Invalidate cache after mutation
         await _invalidateCollectionsCache();
 
         return {
@@ -233,7 +227,6 @@ class CollectionService {
       if (response['success']) {
         _logger.i('Removed book from collection');
 
-        // Invalidate cache after mutation
         await _invalidateCollectionsCache();
 
         return {
@@ -275,7 +268,6 @@ class CollectionService {
       if (response['success']) {
         _logger.i('Deleted collection');
 
-        // Invalidate cache after mutation
         await _invalidateCollectionsCache();
 
         return {

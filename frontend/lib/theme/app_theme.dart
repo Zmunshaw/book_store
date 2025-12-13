@@ -3,18 +3,14 @@ import 'app_colors.dart';
 import 'app_dimensions.dart';
 import 'app_text_styles.dart';
 
-/// Centralized theme configuration for the application
-/// Provides a dark cyberpunk/terminal aesthetic
 class AppTheme {
-  AppTheme._(); // Private constructor to prevent instantiation
+  AppTheme._();
 
-  /// Main application theme
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
 
-      // Color Scheme
       colorScheme: ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
@@ -26,10 +22,8 @@ class AppTheme {
         onError: Colors.white,
       ),
 
-      // Scaffold Background
       scaffoldBackgroundColor: AppColors.background,
 
-      // App Bar Theme
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.black,
         foregroundColor: AppColors.primary,
@@ -38,7 +32,6 @@ class AppTheme {
         titleTextStyle: AppTextStyles.headlineMedium,
       ),
 
-      // Card Theme
       cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: AppDimensions.elevationM,
@@ -51,7 +44,6 @@ class AppTheme {
         ),
       ),
 
-      // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
@@ -98,7 +90,6 @@ class AppTheme {
         suffixIconColor: AppColors.primary,
       ),
 
-      // Text Theme
       textTheme: TextTheme(
         displayLarge: AppTextStyles.displayLarge,
         displayMedium: AppTextStyles.displayMedium,
@@ -117,13 +108,11 @@ class AppTheme {
         labelSmall: AppTextStyles.labelSmall,
       ),
 
-      // Icon Theme
       iconTheme: IconThemeData(
         color: AppColors.primary,
         size: AppDimensions.iconM,
       ),
 
-      // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -137,7 +126,6 @@ class AppTheme {
         ),
       ),
 
-      // Text Button Theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
@@ -146,7 +134,6 @@ class AppTheme {
         ),
       ),
 
-      // Outlined Button Theme
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
@@ -162,14 +149,12 @@ class AppTheme {
         ),
       ),
 
-      // Floating Action Button Theme
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.textOnPrimary,
         elevation: AppDimensions.elevationM,
       ),
 
-      // Bottom Navigation Bar Theme
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.surface,
         selectedItemColor: AppColors.primary,
@@ -180,21 +165,18 @@ class AppTheme {
         unselectedLabelStyle: AppTextStyles.labelSmall,
       ),
 
-      // Divider Theme
       dividerTheme: DividerThemeData(
         color: AppColors.border,
         thickness: AppDimensions.borderWidthThin,
         space: AppDimensions.spacingL,
       ),
 
-      // Progress Indicator Theme
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: AppColors.primary,
         linearTrackColor: AppColors.primaryWithOpacity(0.2),
         circularTrackColor: AppColors.primaryWithOpacity(0.2),
       ),
 
-      // Snackbar Theme
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surface,
         contentTextStyle: AppTextStyles.bodyMedium,
@@ -206,7 +188,6 @@ class AppTheme {
         ),
       ),
 
-      // Dialog Theme
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surface,
         elevation: AppDimensions.elevationXl,
@@ -221,7 +202,6 @@ class AppTheme {
         contentTextStyle: AppTextStyles.bodyMedium,
       ),
 
-      // Chip Theme
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surface,
         deleteIconColor: AppColors.primary,
@@ -244,7 +224,6 @@ class AppTheme {
     );
   }
 
-  /// Common gradient for backgrounds
   static LinearGradient get backgroundGradient {
     return LinearGradient(
       begin: Alignment.topLeft,
@@ -253,7 +232,6 @@ class AppTheme {
     );
   }
 
-  /// Common gradient for cards
   static LinearGradient get cardGradient {
     return LinearGradient(
       begin: Alignment.topLeft,
@@ -262,7 +240,6 @@ class AppTheme {
     );
   }
 
-  /// Common gradient for primary elements
   static LinearGradient get primaryGradient {
     return LinearGradient(
       begin: Alignment.topLeft,
@@ -271,7 +248,6 @@ class AppTheme {
     );
   }
 
-  /// Common box shadow for elevated elements
   static List<BoxShadow> get elevatedShadow {
     return [
       BoxShadow(
@@ -282,7 +258,6 @@ class AppTheme {
     ];
   }
 
-  /// Common box shadow for cards
   static List<BoxShadow> get cardShadow {
     return [
       BoxShadow(

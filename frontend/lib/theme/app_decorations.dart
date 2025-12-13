@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
 
-/// Reusable box decorations and borders
 class AppDecorations {
-  // Private constructor to prevent instantiation
   AppDecorations._();
 
-  // Container decorations
   static BoxDecoration containerDark({double borderOpacity = 0.3}) {
     return BoxDecoration(
       color: AppColors.surface,
@@ -38,7 +35,6 @@ class AppDecorations {
     ],
   );
 
-  // Chip/Tag decoration
   static BoxDecoration chip = BoxDecoration(
     color: AppColors.surface,
     border: Border.all(
@@ -48,7 +44,6 @@ class AppDecorations {
     borderRadius: AppSpacing.radiusSM,
   );
 
-  // Button decoration
   static BoxDecoration addButton = BoxDecoration(
     color: AppColors.primary,
     shape: BoxShape.circle,
@@ -61,7 +56,6 @@ class AppDecorations {
     ],
   );
 
-  // Gradient backgrounds
   static BoxDecoration gradientBackground = BoxDecoration(
     gradient: LinearGradient(
       begin: Alignment.topCenter,
@@ -73,7 +67,6 @@ class AppDecorations {
     ),
   );
 
-  // Input decoration
   static InputDecoration searchInputDecoration({
     String hintText = 'Search books...',
     Widget? suffixIcon,
@@ -92,7 +85,6 @@ class AppDecorations {
     );
   }
 
-  // Border decorations
   static Border bottomBorder(BuildContext context) {
     return Border(
       bottom: BorderSide(

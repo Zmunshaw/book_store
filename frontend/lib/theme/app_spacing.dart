@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Consistent spacing values across the application
 class AppSpacing {
-  // Private constructor to prevent instantiation
   AppSpacing._();
 
-  // Base spacing units
   static const double xs = 2.0;
   static const double sm = 6.0;
   static const double md = 8.0;
@@ -13,7 +10,6 @@ class AppSpacing {
   static const double xl = 16.0;
   static const double xxl = 24.0;
 
-  // Edge insets
   static const EdgeInsets paddingXS = EdgeInsets.all(xs);
   static const EdgeInsets paddingSM = EdgeInsets.all(sm);
   static const EdgeInsets paddingMD = EdgeInsets.all(md);
@@ -21,15 +17,12 @@ class AppSpacing {
   static const EdgeInsets paddingXL = EdgeInsets.all(xl);
   static const EdgeInsets paddingXXL = EdgeInsets.all(xxl);
 
-  // Horizontal padding
   static const EdgeInsets horizontalXL = EdgeInsets.symmetric(horizontal: xl);
   static const EdgeInsets horizontalMD = EdgeInsets.symmetric(horizontal: md);
 
-  // Vertical padding
   static const EdgeInsets verticalXL = EdgeInsets.symmetric(vertical: xl);
   static const EdgeInsets verticalMD = EdgeInsets.symmetric(vertical: md);
 
-  // SizedBox helpers
   static const SizedBox verticalSpaceXS = SizedBox(height: xs);
   static const SizedBox verticalSpaceSM = SizedBox(height: sm);
   static const SizedBox verticalSpaceMD = SizedBox(height: md);
@@ -44,11 +37,9 @@ class AppSpacing {
   static const SizedBox horizontalSpaceXL = SizedBox(width: xl);
   static const SizedBox horizontalSpaceXXL = SizedBox(width: xxl);
 
-  // Grid spacing
   static const double gridCrossAxisSpacing = lg;
   static const double gridMainAxisSpacing = lg;
 
-  // Border radius
   static const double borderRadiusSM = 4.0;
   static const double borderRadiusMD = 8.0;
   static const double borderRadiusLG = 12.0;
@@ -59,17 +50,14 @@ class AppSpacing {
   static BorderRadius radiusLG = BorderRadius.circular(borderRadiusLG);
   static BorderRadius radiusCircle = BorderRadius.circular(borderRadiusCircle);
 
-  // Icon sizes
   static const double iconSM = 16.0;
   static const double iconMD = 20.0;
   static const double iconLG = 60.0;
   static const double iconXL = 80.0;
   static const double iconXXL = 100.0;
 
-  // Image sizes
   static const double coverImageHeight = 300.0;
   static const double coverImageWidth = 200.0;
 
-  // Elevation
   static const double elevationCard = 4.0;
 }

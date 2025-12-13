@@ -19,7 +19,6 @@ class Book {
     this.genres = const [],
   });
 
-  // For backend collection API (uses bID, authorF, authorL format)
   factory Book.fromBackendJson(Map<String, dynamic> json) {
     return Book(
       id: json['bID'] as String,
@@ -35,7 +34,6 @@ class Book {
     );
   }
 
-  // For OpenLibrary search API
   factory Book.fromJson(Map<String, dynamic> json) {
     return Book(
       id: json['bid'] as String? ?? json['bID'] as String,
@@ -57,7 +55,6 @@ class Book {
     );
   }
 
-  // For backend API (AddBookToCollection format)
   Map<String, dynamic> toBackendJson() {
     return {
       'bID': id,

@@ -2,18 +2,14 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_dimensions.dart';
 
-/// Centralized text styles for the application
-/// Classic bookstore aesthetic with serif typography
 class AppTextStyles {
-  AppTextStyles._(); // Private constructor to prevent instantiation
+  AppTextStyles._();
 
-  // Base text style - Using serif fonts for classic bookstore feel
   static const TextStyle _baseStyle = TextStyle(
     fontFamily: 'Georgia',
     color: AppColors.textPrimary,
   );
 
-  // Display Styles (Largest)
   static TextStyle displayLarge = _baseStyle.copyWith(
     fontSize: AppDimensions.fontMassive,
     fontWeight: FontWeight.bold,
@@ -32,7 +28,6 @@ class AppTextStyles {
     letterSpacing: AppDimensions.letterSpacingRelaxed,
   );
 
-  // Headline Styles
   static TextStyle headlineLarge = _baseStyle.copyWith(
     fontSize: AppDimensions.fontXxl,
     fontWeight: FontWeight.bold,
@@ -51,7 +46,6 @@ class AppTextStyles {
     letterSpacing: AppDimensions.letterSpacingNormal,
   );
 
-  // Title Styles
   static TextStyle titleLarge = _baseStyle.copyWith(
     fontSize: AppDimensions.fontL,
     fontWeight: FontWeight.w600,
@@ -70,7 +64,6 @@ class AppTextStyles {
     letterSpacing: AppDimensions.letterSpacingTight,
   );
 
-  // Body Styles
   static TextStyle bodyLarge = _baseStyle.copyWith(
     fontSize: AppDimensions.fontL,
     fontWeight: FontWeight.normal,
@@ -89,7 +82,6 @@ class AppTextStyles {
     letterSpacing: AppDimensions.letterSpacingTight,
   );
 
-  // Label Styles (Small text for UI elements)
   static TextStyle labelLarge = _baseStyle.copyWith(
     fontSize: AppDimensions.fontM,
     fontWeight: FontWeight.w500,
@@ -108,7 +100,6 @@ class AppTextStyles {
     letterSpacing: AppDimensions.letterSpacingTight,
   );
 
-  // Special Styles
   static TextStyle caption = _baseStyle.copyWith(
     fontSize: AppDimensions.fontS,
     color: AppColors.textSecondary,
@@ -127,7 +118,6 @@ class AppTextStyles {
     letterSpacing: AppDimensions.letterSpacingRelaxed,
   );
 
-  // Custom App-Specific Styles
   static TextStyle terminalHeader = _baseStyle.copyWith(
     fontSize: AppDimensions.fontXxxl,
     fontWeight: FontWeight.bold,
@@ -163,7 +153,6 @@ class AppTextStyles {
   );
 }
 
-/// Extension on TextStyle for convenient color modifications
 extension TextStyleExtensions on TextStyle {
   TextStyle withPrimaryColor() => copyWith(color: AppColors.primary);
   TextStyle withSecondaryColor() => copyWith(color: AppColors.secondary);
